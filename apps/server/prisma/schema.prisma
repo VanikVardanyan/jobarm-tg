@@ -20,7 +20,7 @@ model User {
   id         String   @id @default(uuid())
   telegramId String   @unique @map("telegram_id")
   name       String
-  phone      String
+  phone      String?
   language   String   @default("ru")
   isMaster   Boolean  @default(false) @map("is_master")
   isCustomer Boolean  @default(true) @map("is_customer")

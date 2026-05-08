@@ -19,11 +19,21 @@ export function validateTelegramInitData(initData: string, botToken: string): Re
 
     if (expectedHash !== hash) return null
 
+    // Reject tokens older than 5 minutes
+    const authDate = parseInt(params.get('auth_date') ?? '0', 10)
+    if (Date.now() / 1000 - authDate > 300) return null
+
     const result: Record<string, string> = {}
     for (const [k, v] of entries) result[k] = v
     return result
   } catch {
     return null
+  }
+}
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    payload: { userId: string; telegramId: string }
   }
 }
 

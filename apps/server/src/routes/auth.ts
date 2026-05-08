@@ -16,13 +16,16 @@ export default async function authRoutes(app: FastifyInstance) {
     const data = validateTelegramInitData(initData, config.BOT_TOKEN)
     if (!data) return reply.status(401).send({ error: 'Invalid initData' })
 
-    const tgUser = JSON.parse(data['user'] ?? '{}') as {
-      id?: number
-      first_name?: string
-      last_name?: string
+    let tgUser: { id?: number; first_name?: string; last_name?: string } = {}
+    try {
+      tgUser = JSON.parse(data['user'] ?? '{}') as typeof tgUser
+    } catch {
+      return reply.status(400).send({ error: 'Malformed user field' })
     }
     const telegramId = String(tgUser.id ?? '')
     if (!telegramId) return reply.status(400).send({ error: 'No user in initData' })
+
+    const existingUser = await db.user.findUnique({ where: { telegramId } })
 
     const user = await db.user.upsert({
       where: { telegramId },
@@ -30,12 +33,11 @@ export default async function authRoutes(app: FastifyInstance) {
       create: {
         telegramId,
         name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
-        phone: '',
         language,
       },
     })
 
     const token = app.jwt.sign({ userId: user.id, telegramId })
-    return { token, isNew: !user.phone }
+    return { token, isNew: existingUser === null }
   })
 }
