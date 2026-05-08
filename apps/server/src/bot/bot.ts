@@ -5,13 +5,19 @@ import { db } from '../db.js'
 export const bot = new Telegraf(config.BOT_TOKEN)
 
 bot.start(async (ctx) => {
+  if (!ctx.from) return
+
   const telegramId = String(ctx.from.id)
   const chatId = String(ctx.chat.id)
 
-  await db.user.updateMany({
-    where: { telegramId },
-    data: { chatId },
-  })
+  try {
+    await db.user.update({
+      where: { telegramId },
+      data: { chatId },
+    })
+  } catch {
+    // User not registered yet — they'll register via the Mini App
+  }
 
   await ctx.reply(
     '👋 Добро пожаловать в JobArm!\nНайдите мастера или станьте мастером.',
@@ -26,5 +32,5 @@ bot.start(async (ctx) => {
 })
 
 bot.catch((err, ctx) => {
-  console.error(`Bot error for ${ctx.updateType}:`, err)
+  console.error(`Bot error for ${ctx.updateType} (user ${ctx.from?.id}):`, err)
 })
