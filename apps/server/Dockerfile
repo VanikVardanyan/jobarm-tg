@@ -21,6 +21,7 @@ RUN cd apps/server && pnpm exec prisma generate
 RUN pnpm --filter server build
 
 FROM node:20-alpine AS runner
+RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NODE_ENV=production
 

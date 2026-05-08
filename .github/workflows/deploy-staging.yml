@@ -58,7 +58,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             docker compose -f docker-compose.yml -f docker-compose.staging.yml build api
-            docker compose -f docker-compose.yml -f docker-compose.staging.yml run --rm api npx prisma migrate deploy
+            docker compose -f docker-compose.yml -f docker-compose.staging.yml run --rm api pnpm exec prisma migrate deploy
             docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
             docker image prune -f
             echo "Staging deployed: $(date)"
