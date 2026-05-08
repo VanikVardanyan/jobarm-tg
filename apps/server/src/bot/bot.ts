@@ -1,6 +1,12 @@
+import { readFileSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { Telegraf, type Context } from 'telegraf'
 import { config } from '../config.js'
 import { db } from '../db.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const welcomeImage = readFileSync(join(__dirname, '../../assets/welcome.png'))
 
 export const bot: Telegraf<Context> = new Telegraf(config.BOT_TOKEN)
 
@@ -19,12 +25,13 @@ bot.start(async (ctx) => {
     // User not registered yet — they'll register via the Mini App
   }
 
-  await ctx.reply(
-    '👋 Добро пожаловать в JobArm!\nНайдите мастера или станьте мастером.',
+  await ctx.replyWithPhoto(
+    { source: welcomeImage },
     {
+      caption: '👋 Добро пожаловать в JobArm!\n\nНайдите мастера или предложите свои услуги — всё внутри Telegram.',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🛠 Открыть JobArm', web_app: { url: config.MINI_APP_URL } }],
+          [{ text: '🛠 Բացել JobArm', web_app: { url: config.MINI_APP_URL } }],
         ],
       },
     }

@@ -29,6 +29,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY apps/server/src/assets ./apps/server/src/assets
 COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 COPY apps/server/prisma ./apps/server/prisma
 COPY package.json pnpm-workspace.yaml ./
