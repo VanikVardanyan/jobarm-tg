@@ -521,7 +521,20 @@
   <!-- NAV -->
   <nav>
     <a class="nav-logo" href="#">
-      <img src="logo.svg" alt="JobArm" style="height:36px;width:auto;" />
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" style="height:36px;width:auto;" role="img" aria-label="JobArm">
+        <defs>
+          <linearGradient id="markGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#22D3EE"/>
+            <stop offset="100%" stop-color="#2DD4BF"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(8 8)">
+          <path d="M 12 32 Q 12 12 32 12" fill="none" stroke="url(#markGradNav)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 32 52 Q 52 52 52 32" fill="none" stroke="url(#markGradNav)" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="6" fill="url(#markGradNav)"/>
+        </g>
+        <text x="84" y="52" font-family="system-ui,sans-serif" font-size="36" font-weight="700" letter-spacing="-1.2" fill="#F8FAFC">Jobarm</text>
+      </svg>
     </a>
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('hy')">ՀԱՅ</button>
