@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  telegramId String   @unique @map("telegram_id")
+  name       String
+  phone      String
+  language   String   @default("ru")
+  isMaster   Boolean  @default(false) @map("is_master")
+  isCustomer Boolean  @default(true) @map("is_customer")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  categories        UserCategory[]
+  jobsAsCustomer    Job[]         @relation("CustomerJobs")
+  applications      Application[]
+  selectedInJobs    Job[]         @relation("SelectedMaster")
+  reviewsReceived   Review[]      @relation("MasterReviews")
+  reviewsGiven      Review[]      @relation("CustomerReviews")
+
+  @@map("users")
+}
+
+model Category {
+  id     String @id @default(uuid())
+  nameRu String @map("name_ru")
+  nameEn String @map("name_en")
+
+  users UserCategory[]
+  jobs  Job[]
+
+  @@map("categories")
+}
+
+model UserCategory {
+  userId     String @map("user_id")
+  categoryId String @map("category_id")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+  @@map("user_categories")
+}
+
+model Job {
+  id                String   @id @default(uuid())
+  customerId        String   @map("customer_id")
+  categoryId        String   @map("category_id")
+  description       String
+  budget            Int
+  dateFrom          DateTime @map("date_from") @db.Date
+  dateTo            DateTime @map("date_to") @db.Date
+  status            String   @default("new")
+  selectedMasterId  String?  @map("selected_master_id")
+  masterConfirmed   Boolean  @default(false) @map("master_confirmed")
+  customerConfirmed Boolean  @default(false) @map("customer_confirmed")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  customer       User          @relation("CustomerJobs", fields: [customerId], references: [id])
+  category       Category      @relation(fields: [categoryId], references: [id])
+  selectedMaster User?         @relation("SelectedMaster", fields: [selectedMasterId], references: [id])
+  applications   Application[]
+  review         Review?
+
+  @@map("jobs")
+}
+
+model Application {
+  id        String   @id @default(uuid())
+  jobId     String   @map("job_id")
+  masterId  String   @map("master_id")
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  master User @relation(fields: [masterId], references: [id])
+
+  @@unique([jobId, masterId])
+  @@map("applications")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  jobId      String   @unique @map("job_id")
+  masterId   String   @map("master_id")
+  customerId String   @map("customer_id")
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  job      Job  @relation(fields: [jobId], references: [id])
+  master   User @relation("MasterReviews", fields: [masterId], references: [id])
+  customer User @relation("CustomerReviews", fields: [customerId], references: [id])
+
+  @@map("reviews")
+}
