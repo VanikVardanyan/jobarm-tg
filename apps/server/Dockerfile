@@ -17,6 +17,7 @@ COPY packages/shared ./packages/shared
 COPY apps/server ./apps/server
 COPY tsconfig.base.json ./
 RUN pnpm --filter shared build
+RUN cd apps/server && npx prisma generate
 RUN pnpm --filter server build
 
 FROM node:20-alpine AS runner
