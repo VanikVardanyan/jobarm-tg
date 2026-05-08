@@ -1,0 +1,41 @@
+import type { FastifyInstance } from 'fastify'
+import { z } from 'zod'
+import { validateTelegramInitData } from '../plugins/auth.js'
+import { db } from '../db.js'
+import { config } from '../config.js'
+
+const bodySchema = z.object({
+  initData: z.string().min(1),
+  language: z.enum(['ru', 'en']).default('ru'),
+})
+
+export default async function authRoutes(app: FastifyInstance) {
+  app.post('/telegram', async (request, reply) => {
+    const { initData, language } = bodySchema.parse(request.body)
+
+    const data = validateTelegramInitData(initData, config.BOT_TOKEN)
+    if (!data) return reply.status(401).send({ error: 'Invalid initData' })
+
+    const tgUser = JSON.parse(data['user'] ?? '{}') as {
+      id?: number
+      first_name?: string
+      last_name?: string
+    }
+    const telegramId = String(tgUser.id ?? '')
+    if (!telegramId) return reply.status(400).send({ error: 'No user in initData' })
+
+    const user = await db.user.upsert({
+      where: { telegramId },
+      update: {},
+      create: {
+        telegramId,
+        name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
+        phone: '',
+        language,
+      },
+    })
+
+    const token = app.jwt.sign({ userId: user.id, telegramId })
+    return { token, isNew: !user.phone }
+  })
+}
