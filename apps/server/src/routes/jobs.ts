@@ -34,6 +34,20 @@ export default async function jobsRoutes(app: FastifyInstance) {
     return jobs.map((j) => ({ ...j, applicationCount: j._count.applications }))
   })
 
+  // Master: list assigned jobs (in_progress or pending_confirmation)
+  app.get('/jobs/assigned', { preHandler: [app.authenticate] }, async (request) => {
+    const { userId } = request.user
+    const jobs = await db.job.findMany({
+      where: {
+        selectedMasterId: userId,
+        status: { in: ['in_progress', 'pending_confirmation'] },
+      },
+      include: jobInclude,
+      orderBy: { createdAt: 'desc' },
+    })
+    return jobs.map((j) => ({ ...j, applicationCount: j._count.applications }))
+  })
+
   // Get single job
   app.get<{ Params: { id: string } }>(
     '/jobs/:id',
