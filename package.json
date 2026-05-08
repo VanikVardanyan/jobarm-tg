@@ -1,0 +1,10 @@
+{
+  "name": "jobbarm",
+  "private": true,
+  "version": "0.0.1",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev:server": "pnpm --filter server dev",
+    "test": "pnpm --filter server test"
+  }
+}
