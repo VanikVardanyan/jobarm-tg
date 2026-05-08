@@ -90,7 +90,7 @@ jobs:
           DATABASE_URL: postgresql://jobbarm:jobbarm@localhost:5432/jobbarm_test
           REDIS_URL: redis://localhost:6379/0
           BOT_TOKEN: 0:fake_token_for_tests
-          JWT_SECRET: test_secret
+          JWT_SECRET: test_secret_for_ci_use_only
           MINI_APP_URL: https://example.com
         run: |
           pnpm exec prisma migrate deploy
