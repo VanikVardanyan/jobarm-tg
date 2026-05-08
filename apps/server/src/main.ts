@@ -15,8 +15,14 @@ app.listen({ port: config.PORT, host: '0.0.0.0' }, (err) => {
 })
 
 bot.launch().catch((err) => {
-  console.error('Bot launch failed:', err)
+  app.log.error({ err }, 'Bot launch failed')
+  process.exit(1)
 })
 
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+const shutdown = async (signal: string) => {
+  bot.stop(signal)
+  await app.close()
+}
+
+process.once('SIGINT', () => shutdown('SIGINT'))
+process.once('SIGTERM', () => shutdown('SIGTERM'))
