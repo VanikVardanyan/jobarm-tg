@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build shared
+        run: pnpm --filter @jobbarm/shared build
+
+      - name: Type check server
+        run: pnpm --filter server exec tsc --noEmit
+
+      - name: Type check web
+        run: pnpm --filter web exec tsc --noEmit
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jobbarm
+          POSTGRES_PASSWORD: jobbarm
+          POSTGRES_DB: jobbarm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9.1.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build shared
+        run: pnpm --filter @jobbarm/shared build
+
+      - name: Run server tests
+        working-directory: apps/server
+        env:
+          DATABASE_URL: postgresql://jobbarm:jobbarm@localhost:5432/jobbarm_test
+          REDIS_URL: redis://localhost:6379/0
+          BOT_TOKEN: 0:fake_token_for_tests
+          JWT_SECRET: test_secret
+          MINI_APP_URL: https://example.com
+        run: |
+          npx prisma migrate deploy
+          pnpm test
