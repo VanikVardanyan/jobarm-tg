@@ -12,6 +12,10 @@ const categories = [
   { nameRu: 'Малярные работы', nameEn: 'Painting' },
   { nameRu: 'Репетитор', nameEn: 'Tutor' },
   { nameRu: 'Курьер', nameEn: 'Courier' },
+  { nameRu: 'Водитель', nameEn: 'Driver' },
+  { nameRu: 'Риелтор', nameEn: 'Realtor' },
+  { nameRu: 'Авто ходовик', nameEn: 'Auto Chassis' },
+  { nameRu: 'Авто малярка', nameEn: 'Auto Body Painting' },
   { nameRu: 'Другое', nameEn: 'Other' },
 ]
 
