@@ -78,7 +78,7 @@ export default function Profile() {
         <div className="flex flex-col gap-1">
           <label className="text-sm text-muted">{t.profile.language}</label>
           <div className="flex gap-2">
-            {(['ru', 'en'] as const).map((l) => (
+            {(['hy', 'ru', 'en'] as const).map((l) => (
               <button
                 key={l}
                 onClick={() => setLanguage(l)}
@@ -89,7 +89,7 @@ export default function Profile() {
                     : 'border-secondary'
                 )}
               >
-                {l === 'ru' ? 'Русский' : 'English'}
+                {l === 'hy' ? 'Հայ' : l === 'ru' ? 'Рус' : 'Eng'}
               </button>
             ))}
           </div>

@@ -10,7 +10,7 @@ type Step = 1 | 2 | 3 | 4
 
 export default function Onboarding() {
   const [step, setStep] = useState<Step>(1)
-  const [lang, setLang] = useState<Language>('ru')
+  const [lang, setLang] = useState<Language>('hy')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<'customer' | 'master' | 'both'>('customer')
@@ -77,7 +77,7 @@ export default function Onboarding() {
         <div className="flex-1 flex flex-col gap-6">
           <h1 className="text-xl font-semibold">{t.onboarding.step1Title}</h1>
           <div className="flex flex-col gap-3">
-            {(['ru', 'en'] as Language[]).map((l) => (
+            {(['hy', 'ru', 'en'] as Language[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
@@ -86,7 +86,7 @@ export default function Onboarding() {
                   lang === l ? 'border-primary bg-primary/10' : 'border-secondary'
                 )}
               >
-                {l === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}
+                {l === 'hy' ? '🇦🇲 Հայերեն' : l === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}
               </button>
             ))}
           </div>
