@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { db } from '../db.js'
+import { notifyMasterNewReview } from '../bot/notifications.js'
 
 export default async function reviewsRoutes(app: FastifyInstance) {
   app.post<{ Params: { id: string } }>(
@@ -30,6 +31,7 @@ export default async function reviewsRoutes(app: FastifyInstance) {
       })
 
       reply.status(201)
+      void notifyMasterNewReview(job.selectedMasterId, rating, comment)
       return review
     }
   )

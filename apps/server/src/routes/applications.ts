@@ -1,6 +1,12 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { db } from '../db.js'
+import {
+  notifyCustomerNewApplication,
+  notifyMasterSelected,
+  notifyMasterJobDone,
+  notifyJobCompleted,
+} from '../bot/notifications.js'
 
 export default async function applicationsRoutes(app: FastifyInstance) {
   // Master: apply to job
@@ -21,6 +27,7 @@ export default async function applicationsRoutes(app: FastifyInstance) {
       })
 
       reply.status(201)
+      void notifyCustomerNewApplication(job.id, userId)
       return application
     }
   )
@@ -64,6 +71,8 @@ export default async function applicationsRoutes(app: FastifyInstance) {
         data: { selectedMasterId: masterId, status: 'in_progress' },
       })
 
+      void notifyMasterSelected(jobId, masterId)
+
       const master = await db.user.findUniqueOrThrow({ where: { id: masterId } })
       return { phone: master.phone }
     }
@@ -96,8 +105,11 @@ export default async function applicationsRoutes(app: FastifyInstance) {
 
       if (updated.masterConfirmed && updated.customerConfirmed) {
         await db.job.update({ where: { id: job.id }, data: { status: 'completed' } })
+        if (job.selectedMasterId) void notifyJobCompleted(job.id, job.selectedMasterId)
         return { status: 'completed' }
       }
+
+      if (isMaster) void notifyMasterJobDone(job.id)
 
       return { status: 'pending_confirmation' }
     }

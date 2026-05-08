@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { db } from '../db.js'
+import { notifyMastersNewJob } from '../bot/notifications.js'
 
 const jobInclude = {
   category: true,
@@ -71,6 +72,7 @@ export default async function jobsRoutes(app: FastifyInstance) {
     })
 
     reply.status(201)
+    void notifyMastersNewJob(job.id)
     return { ...job, applicationCount: job._count.applications }
   })
 }
