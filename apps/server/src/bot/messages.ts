@@ -1,6 +1,6 @@
-type Language = 'ru' | 'en'
+export type Language = 'ru' | 'en'
 
-type MessageKey =
+export type MessageKey =
   | 'newJob'
   | 'newApplication'
   | 'masterSelected'
@@ -41,7 +41,7 @@ const templates: Record<Language, Record<MessageKey, (p: MessageParams) => strin
   },
 }
 
-export function buildMessage(lang: Language, key: MessageKey, params: MessageParams): string {
-  const langTemplates = templates[lang] ?? templates.ru
+export function buildMessage(lang: string, key: MessageKey, params: MessageParams): string {
+  const langTemplates = templates[lang as Language] ?? templates.ru
   return langTemplates[key](params)
 }
