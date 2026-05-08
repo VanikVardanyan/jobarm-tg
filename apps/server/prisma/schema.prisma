@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum JobStatus {
+  new
+  in_progress
+  pending_confirmation
+  completed
+
+  @@map("job_status")
+}
+
 model User {
   id         String   @id @default(uuid())
   telegramId String   @unique @map("telegram_id")
@@ -35,6 +44,7 @@ model Category {
   users UserCategory[]
   jobs  Job[]
 
+  @@unique([nameEn])
   @@map("categories")
 }
 
@@ -50,18 +60,19 @@ model UserCategory {
 }
 
 model Job {
-  id                String   @id @default(uuid())
-  customerId        String   @map("customer_id")
-  categoryId        String   @map("category_id")
+  id                String    @id @default(uuid())
+  customerId        String    @map("customer_id")
+  categoryId        String    @map("category_id")
   description       String
   budget            Int
-  dateFrom          DateTime @map("date_from") @db.Date
-  dateTo            DateTime @map("date_to") @db.Date
-  status            String   @default("new")
-  selectedMasterId  String?  @map("selected_master_id")
-  masterConfirmed   Boolean  @default(false) @map("master_confirmed")
-  customerConfirmed Boolean  @default(false) @map("customer_confirmed")
-  createdAt         DateTime @default(now()) @map("created_at")
+  dateFrom          DateTime  @map("date_from") @db.Date
+  dateTo            DateTime  @map("date_to") @db.Date
+  status            JobStatus @default(new)
+  selectedMasterId  String?   @map("selected_master_id")
+  masterConfirmed   Boolean   @default(false) @map("master_confirmed")
+  customerConfirmed Boolean   @default(false) @map("customer_confirmed")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   customer       User          @relation("CustomerJobs", fields: [customerId], references: [id])
   category       Category      @relation(fields: [categoryId], references: [id])
@@ -69,6 +80,8 @@ model Job {
   applications   Application[]
   review         Review?
 
+  @@index([categoryId, status])
+  @@index([customerId])
   @@map("jobs")
 }
 
@@ -83,6 +96,7 @@ model Application {
   master User @relation(fields: [masterId], references: [id])
 
   @@unique([jobId, masterId])
+  @@index([masterId])
   @@map("applications")
 }
 
@@ -99,5 +113,7 @@ model Review {
   master   User @relation("MasterReviews", fields: [masterId], references: [id])
   customer User @relation("CustomerReviews", fields: [customerId], references: [id])
 
+  @@index([masterId])
+  @@index([customerId])
   @@map("reviews")
 }

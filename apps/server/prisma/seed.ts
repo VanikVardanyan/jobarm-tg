@@ -16,7 +16,13 @@ const categories = [
 ]
 
 async function main() {
-  await prisma.category.createMany({ data: categories, skipDuplicates: true })
+  for (const cat of categories) {
+    await prisma.category.upsert({
+      where: { nameEn: cat.nameEn },
+      update: { nameRu: cat.nameRu },
+      create: cat,
+    })
+  }
   console.log('Seeded categories')
 }
 
