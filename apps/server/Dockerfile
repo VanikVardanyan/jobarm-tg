@@ -17,7 +17,7 @@ COPY packages/shared ./packages/shared
 COPY apps/server ./apps/server
 COPY tsconfig.base.json ./
 RUN pnpm --filter shared build
-RUN cd apps/server && npx prisma generate
+RUN cd apps/server && pnpm exec prisma generate
 RUN pnpm --filter server build
 
 FROM node:20-alpine AS runner
@@ -36,7 +36,7 @@ COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY apps/server/prisma ./apps/server/prisma
 
 WORKDIR /app/apps/server
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
