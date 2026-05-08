@@ -1,3 +1,8 @@
+export function escapeMarkdown(text: string | number): string {
+  if (typeof text === 'number') return String(text)
+  return text.replace(/[*_`[\]]/g, (ch) => `\\${ch}`)
+}
+
 export type Language = 'ru' | 'en'
 
 export type MessageKey =
@@ -13,31 +18,31 @@ type MessageParams = Record<string, string | number>
 const templates: Record<Language, Record<MessageKey, (p: MessageParams) => string>> = {
   ru: {
     newJob: (p) =>
-      `🔔 *Новая заявка!*\n\n📂 ${p.category}\n📝 ${p.description}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
+      `🔔 *Новая заявка!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
     newApplication: (p) =>
-      `👨‍🔧 *${p.masterName}* откликнулся на вашу заявку:\n_${p.jobDescription}_`,
+      `👨‍🔧 *${escapeMarkdown(p.masterName)}* откликнулся на вашу заявку:\n_${escapeMarkdown(p.jobDescription)}_`,
     masterSelected: (p) =>
-      `✅ Заказчик выбрал вас!\nЗаявка: _${p.jobDescription}_\nСвяжитесь с заказчиком.`,
+      `✅ Заказчик выбрал вас!\nЗаявка: _${escapeMarkdown(p.jobDescription)}_\nСвяжитесь с заказчиком.`,
     masterMarkedDone: (p) =>
-      `🏁 Мастер отметил работу как выполненную:\n_${p.jobDescription}_\nПодтвердите завершение в приложении.`,
+      `🏁 Мастер отметил работу как выполненную:\n_${escapeMarkdown(p.jobDescription)}_\nПодтвердите завершение в приложении.`,
     customerConfirmed: (p) =>
-      `🎉 Работа завершена!\n_${p.jobDescription}_\nЗаказчик подтвердил выполнение.`,
+      `🎉 Работа завершена!\n_${escapeMarkdown(p.jobDescription)}_\nЗаказчик подтвердил выполнение.`,
     newReview: (p) =>
-      `⭐ Новый отзыв: *${p.rating}/5*${p.comment ? `\n_${p.comment}_` : ''}`,
+      `⭐ Новый отзыв: *${p.rating}/5*${p.comment ? `\n_${escapeMarkdown(p.comment)}_` : ''}`,
   },
   en: {
     newJob: (p) =>
-      `🔔 *New job!*\n\n📂 ${p.category}\n📝 ${p.description}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
+      `🔔 *New job!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
     newApplication: (p) =>
-      `👨‍🔧 *${p.masterName}* applied to your job:\n_${p.jobDescription}_`,
+      `👨‍🔧 *${escapeMarkdown(p.masterName)}* applied to your job:\n_${escapeMarkdown(p.jobDescription)}_`,
     masterSelected: (p) =>
-      `✅ You were selected!\nJob: _${p.jobDescription}_\nContact the customer.`,
+      `✅ You were selected!\nJob: _${escapeMarkdown(p.jobDescription)}_\nContact the customer.`,
     masterMarkedDone: (p) =>
-      `🏁 Master marked the job as done:\n_${p.jobDescription}_\nPlease confirm completion in the app.`,
+      `🏁 Master marked the job as done:\n_${escapeMarkdown(p.jobDescription)}_\nPlease confirm completion in the app.`,
     customerConfirmed: (p) =>
-      `🎉 Job completed!\n_${p.jobDescription}_\nThe customer confirmed.`,
+      `🎉 Job completed!\n_${escapeMarkdown(p.jobDescription)}_\nThe customer confirmed.`,
     newReview: (p) =>
-      `⭐ New review: *${p.rating}/5*${p.comment ? `\n_${p.comment}_` : ''}`,
+      `⭐ New review: *${p.rating}/5*${p.comment ? `\n_${escapeMarkdown(p.comment)}_` : ''}`,
   },
 }
 
