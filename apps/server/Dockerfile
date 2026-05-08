@@ -36,5 +36,6 @@ COPY packages/shared/package.json ./packages/shared/
 COPY apps/server/package.json ./apps/server/
 
 WORKDIR /app/apps/server
+RUN pnpm exec prisma generate
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]
