@@ -7,78 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum JobStatus {
-  new
-  in_progress
-  pending_confirmation
-  completed
-
-  @@map("job_status")
-}
-
 model User {
-  id         String   @id @default(uuid())
-  telegramId String   @unique @map("telegram_id")
-  name       String
-  phone      String?
-  language   String   @default("ru")
-  isMaster   Boolean  @default(false) @map("is_master")
-  isCustomer Boolean  @default(true) @map("is_customer")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  categories        UserCategory[]
-  jobsAsCustomer    Job[]         @relation("CustomerJobs")
-  applications      Application[]
-  selectedInJobs    Job[]         @relation("SelectedMaster")
-  reviewsReceived   Review[]      @relation("MasterReviews")
-  reviewsGiven      Review[]      @relation("CustomerReviews")
+  id              String         @id @default(uuid())
+  telegramId      String         @unique @map("telegram_id")
+  name            String
+  phone           String?
+  language        String         @default("ru")
+  isMaster        Boolean        @default(false) @map("is_master")
+  isCustomer      Boolean        @default(true) @map("is_customer")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  chatId          String?        @map("chat_id")
+  applications    Application[]
+  jobsAsCustomer  Job[]          @relation("CustomerJobs")
+  selectedInJobs  Job[]          @relation("SelectedMaster")
+  reviewsGiven    Review[]       @relation("CustomerReviews")
+  reviewsReceived Review[]       @relation("MasterReviews")
+  categories      UserCategory[]
 
   @@map("users")
 }
 
 model Category {
-  id     String @id @default(uuid())
-  nameRu String @map("name_ru")
-  nameEn String @map("name_en")
+  id     String         @id @default(uuid())
+  nameRu String         @map("name_ru")
+  nameEn String         @unique @map("name_en")
+  jobs   Job[]
+  users  UserCategory[]
 
-  users UserCategory[]
-  jobs  Job[]
-
-  @@unique([nameEn])
   @@map("categories")
 }
 
 model UserCategory {
-  userId     String @map("user_id")
-  categoryId String @map("category_id")
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, categoryId])
   @@map("user_categories")
 }
 
 model Job {
-  id                String    @id @default(uuid())
-  customerId        String    @map("customer_id")
-  categoryId        String    @map("category_id")
+  id                String        @id @default(uuid())
+  customerId        String        @map("customer_id")
+  categoryId        String        @map("category_id")
   description       String
   budget            Int
-  dateFrom          DateTime  @map("date_from") @db.Date
-  dateTo            DateTime  @map("date_to") @db.Date
-  status            JobStatus @default(new)
-  selectedMasterId  String?   @map("selected_master_id")
-  masterConfirmed   Boolean   @default(false) @map("master_confirmed")
-  customerConfirmed Boolean   @default(false) @map("customer_confirmed")
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-
-  customer       User          @relation("CustomerJobs", fields: [customerId], references: [id])
-  category       Category      @relation(fields: [categoryId], references: [id])
-  selectedMaster User?         @relation("SelectedMaster", fields: [selectedMasterId], references: [id])
-  applications   Application[]
-  review         Review?
+  dateFrom          DateTime      @map("date_from") @db.Date
+  dateTo            DateTime      @map("date_to") @db.Date
+  selectedMasterId  String?       @map("selected_master_id")
+  masterConfirmed   Boolean       @default(false) @map("master_confirmed")
+  customerConfirmed Boolean       @default(false) @map("customer_confirmed")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  status            JobStatus     @default(new)
+  applications      Application[]
+  category          Category      @relation(fields: [categoryId], references: [id])
+  customer          User          @relation("CustomerJobs", fields: [customerId], references: [id])
+  selectedMaster    User?         @relation("SelectedMaster", fields: [selectedMasterId], references: [id])
+  review            Review?
 
   @@index([categoryId, status])
   @@index([customerId])
@@ -91,9 +79,8 @@ model Application {
   masterId  String   @map("master_id")
   comment   String?
   createdAt DateTime @default(now()) @map("created_at")
-
-  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  master User @relation(fields: [masterId], references: [id])
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  master    User     @relation(fields: [masterId], references: [id])
 
   @@unique([jobId, masterId])
   @@index([masterId])
@@ -108,12 +95,20 @@ model Review {
   rating     Int
   comment    String?
   createdAt  DateTime @default(now()) @map("created_at")
-
-  job      Job  @relation(fields: [jobId], references: [id])
-  master   User @relation("MasterReviews", fields: [masterId], references: [id])
-  customer User @relation("CustomerReviews", fields: [customerId], references: [id])
+  customer   User     @relation("CustomerReviews", fields: [customerId], references: [id])
+  job        Job      @relation(fields: [jobId], references: [id])
+  master     User     @relation("MasterReviews", fields: [masterId], references: [id])
 
   @@index([masterId])
   @@index([customerId])
   @@map("reviews")
+}
+
+enum JobStatus {
+  new
+  in_progress
+  pending_confirmation
+  completed
+
+  @@map("job_status")
 }
