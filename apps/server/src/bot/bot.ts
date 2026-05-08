@@ -1,8 +1,8 @@
-import { Telegraf } from 'telegraf'
+import { Telegraf, type Context } from 'telegraf'
 import { config } from '../config.js'
 import { db } from '../db.js'
 
-export const bot = new Telegraf(config.BOT_TOKEN)
+export const bot: Telegraf<Context> = new Telegraf(config.BOT_TOKEN)
 
 bot.start(async (ctx) => {
   if (!ctx.from) return
