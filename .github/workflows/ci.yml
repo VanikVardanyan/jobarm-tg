@@ -31,6 +31,10 @@ jobs:
       - name: Build shared
         run: pnpm --filter @jobbarm/shared build
 
+      - name: Generate Prisma client
+        working-directory: apps/server
+        run: pnpm exec prisma generate
+
       - name: Type check server
         run: pnpm --filter server exec tsc --noEmit
 
@@ -89,5 +93,5 @@ jobs:
           JWT_SECRET: test_secret
           MINI_APP_URL: https://example.com
         run: |
-          npx prisma migrate deploy
+          pnpm exec prisma migrate deploy
           pnpm test
