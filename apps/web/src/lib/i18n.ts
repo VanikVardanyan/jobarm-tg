@@ -93,6 +93,98 @@ const ru = {
 
 type Strings = typeof ru
 
+// TODO: replace with proper Armenian translations
+const hy: Strings = {
+  tabs: {
+    home: 'Գlavna',
+    masters: 'Վarпetner',
+    notifications: 'Tsanushumer',
+    profile: 'Anketa',
+  },
+  onboarding: {
+    step1Title: 'Yntrek lezun',
+    step2Title: 'Dzer tvyalnerə',
+    step3Title: 'Duk ov ek?',
+    step4Title: 'Dzer kategorianery',
+    namePlaceholder: 'Anun',
+    phonePlaceholder: 'Telefon',
+    asCustomer: 'Патvirazogh',
+    asCustomerDesc: 'Voronum em varпetner',
+    asMaster: 'Varпet',
+    asMasterDesc: 'Katarium em ashkhаtanq',
+    bothRoles: 'Erkouy el',
+    next: 'Hadjord',
+    finish: 'Avartel',
+    selectCategories: 'Yntrek kategorianery',
+  },
+  home: {
+    customerTitle: 'Im patvererə',
+    masterFeedTitle: 'Nor ashkhatankner',
+    masterAssignedTitle: 'Im ashkhatanknery',
+    createJob: 'Stvel patver',
+    noJobs: 'Patver chka',
+    noFeed: 'Nor ashkhatanq chka',
+    status: {
+      new: 'Nor',
+      in_progress: 'Əntatsumê',
+      pending_confirmation: 'Spasumê hastатмanə',
+      completed: 'Avartvел ê',
+    },
+  },
+  job: {
+    budget: 'Byujjet',
+    dates: 'Amisakан',
+    category: 'Kategoria',
+    description: 'Nkaragrутюн',
+    applications: 'Ardzaganкner',
+    apply: 'Ardzagankel',
+    applied: 'Ardên ardzagancvel ek',
+    commentPlaceholder: 'Maeknutyun (kamavor che)',
+    selectMaster: 'Yntrel',
+    markDone: 'Nshel orpes avartvad',
+    leaveReview: 'Thognel kartsik',
+    reviewTitle: 'Dzer kartsiкy',
+    reviewComment: 'Maeknutyun',
+    submitReview: 'Ujarkel',
+  },
+  createJob: {
+    title: 'Nor patver',
+    category: 'Kategoria',
+    description: 'Nkaragrutуун',
+    descriptionPlaceholder: 'Nkaragrek inch pêtk arnel (minimum 10 nishan)',
+    budget: 'Byujjet (֏)',
+    dateFrom: 'Sksbі amsakativ',
+    dateTo: 'Avartman amsakativ',
+    submit: 'Stvel patver',
+  },
+  masters: {
+    title: 'Varпetner',
+    all: 'Bardy',
+    rating: 'Varkanish',
+    reviews: 'Kartsikner',
+    noReviews: 'Kartsik chka',
+  },
+  profile: {
+    title: 'Anketa',
+    switchToMaster: 'Antsnel orpes varпet',
+    switchToCustomer: 'Antsnel orpes patvirazogh',
+    becomeMaster: 'Darnal varпet',
+    name: 'Anun',
+    phone: 'Telefon',
+    language: 'Lezu',
+    save: 'Pahpanel',
+    logout: 'Durs gal',
+  },
+  notifications: {
+    title: 'Tsanushumer',
+    empty: 'Tsanushumnerə kgan Telegram-ov',
+  },
+  errors: {
+    generic: 'Inch-or ban chegav',
+    required: 'Paymanavorin dash',
+  },
+}
+
 const en: Strings = {
   tabs: {
     home: 'Home',
@@ -184,9 +276,9 @@ const en: Strings = {
   },
 }
 
-const strings: Record<string, Strings> = { ru, en }
+const strings: Record<string, Strings> = { hy, ru, en }
 
 export function useT() {
   const language = useStore((s) => s.language)
-  return strings[language] ?? ru
+  return strings[language] ?? strings.hy
 }

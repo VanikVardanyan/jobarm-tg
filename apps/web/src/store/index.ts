@@ -22,7 +22,7 @@ export const useStore = create<AppState>()(
   persist(
     (set) => ({
       token: null,
-      language: 'ru',
+      language: 'hy',
       activeRole: 'customer',
       isMaster: false,
       isOnboarded: false,

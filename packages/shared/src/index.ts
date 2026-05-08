@@ -1,4 +1,4 @@
-export type Language = 'ru' | 'en'
+export type Language = 'hy' | 'ru' | 'en'
 
 export type JobStatus = 'new' | 'in_progress' | 'pending_confirmation' | 'completed'
 
