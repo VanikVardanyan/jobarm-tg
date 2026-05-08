@@ -25,24 +25,25 @@ services:
       timeout: 3s
       retries: 20
 
-  api:
-    build:
-      context: ./apps/server
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./apps/server:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql://jobbarm:jobbarm@postgres:5432/jobbarm
-      REDIS_URL: redis://redis:6379/0
+  # api service will be uncommented once apps/server/Dockerfile.dev is created (Task 4)
+  # api:
+  #   build:
+  #     context: ./apps/server
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./apps/server:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   env_file: .env
+  #   environment:
+  #     DATABASE_URL: postgresql://jobbarm:jobbarm@postgres:5432/jobbarm
+  #     REDIS_URL: redis://redis:6379/0
 
 volumes:
   pg_data:

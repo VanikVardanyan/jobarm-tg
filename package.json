@@ -2,6 +2,7 @@
   "name": "jobbarm",
   "private": true,
   "version": "0.0.1",
+  "packageManager": "pnpm@9.1.1",
   "engines": { "node": ">=20" },
   "scripts": {
     "dev:server": "pnpm --filter server dev",
