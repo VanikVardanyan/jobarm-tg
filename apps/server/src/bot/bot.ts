@@ -28,7 +28,7 @@ bot.start(async (ctx) => {
   await ctx.replyWithPhoto(
     { source: welcomeImage },
     {
-      caption: '👋 Добро пожаловать в JobArm!\n\nНайдите мастера или предложите свои услуги — всё внутри Telegram.',
+      caption: '🚀 Վարպետներ և պատվիրատուներ՝ մեկ հարթակում։\n📲 Տեղադրեք առաջադրանքներ կամ գտեք աշխատանք՝ առանց ավելորդ քայլերի։',
       reply_markup: {
         inline_keyboard: [
           [{ text: '🛠 Բացել JobArm', web_app: { url: config.MINI_APP_URL } }],
