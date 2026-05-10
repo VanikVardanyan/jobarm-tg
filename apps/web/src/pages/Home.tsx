@@ -53,25 +53,30 @@ function JobCard({ job }: { job: Job }) {
   )
 }
 
-function CustomerHome() {
+type Tab = 'orders' | 'feed' | 'assigned'
+
+function NewJobButton() {
   const t = useT()
   const navigate = useNavigate()
+  return (
+    <button
+      onClick={() => navigate('/jobs/new')}
+      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+    >
+      <Plus className="w-4 h-4" />
+      {t.home.createJob}
+    </button>
+  )
+}
+
+function OrdersTab() {
+  const t = useT()
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['jobs', 'my'],
     queryFn: getMyJobs,
   })
   return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">{t.home.customerTitle}</h1>
-        <button
-          onClick={() => navigate('/jobs/new')}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          {t.home.createJob}
-        </button>
-      </div>
+    <>
       {isLoading && <div className="text-center text-muted py-8">...</div>}
       {!isLoading && jobs.length === 0 && (
         <p className="text-center text-muted py-8">{t.home.noJobs}</p>
@@ -81,35 +86,89 @@ function CustomerHome() {
           <JobCard key={job.id} job={job} />
         ))}
       </div>
-    </div>
+    </>
   )
 }
 
-function MasterHome() {
+function FeedTab() {
   const t = useT()
-  const [tab, setTab] = useState<'feed' | 'assigned'>('feed')
-
-  const { data: feed = [], isLoading: loadingFeed } = useQuery({
+  const { data: feed = [], isLoading } = useQuery({
     queryKey: ['jobs', 'feed'],
     queryFn: getJobFeed,
-    enabled: tab === 'feed',
   })
-  const { data: assigned = [], isLoading: loadingAssigned } = useQuery({
+  return (
+    <>
+      {isLoading && <div className="text-center text-muted py-8">...</div>}
+      {!isLoading && feed.length === 0 && (
+        <p className="text-center text-muted py-8">{t.home.noFeed}</p>
+      )}
+      <div className="flex flex-col gap-3">
+        {feed.map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </div>
+    </>
+  )
+}
+
+function AssignedTab() {
+  const t = useT()
+  const { data: assigned = [], isLoading } = useQuery({
     queryKey: ['jobs', 'assigned'],
     queryFn: getAssignedJobs,
-    enabled: tab === 'assigned',
   })
+  return (
+    <>
+      {isLoading && <div className="text-center text-muted py-8">...</div>}
+      {!isLoading && assigned.length === 0 && (
+        <p className="text-center text-muted py-8">{t.home.noJobs}</p>
+      )}
+      <div className="flex flex-col gap-3">
+        {assigned.map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </div>
+    </>
+  )
+}
 
-  const jobs = tab === 'feed' ? feed : assigned
-  const isLoading = tab === 'feed' ? loadingFeed : loadingAssigned
+export default function Home() {
+  const t = useT()
+  const isMaster = useStore((s) => s.isMaster)
+  const [tab, setTab] = useState<Tab>('orders')
+
+  // Customer only — single screen with own orders + create button
+  if (!isMaster) {
+    return (
+      <div className="p-4 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-semibold">{t.home.customerTitle}</h1>
+          <NewJobButton />
+        </div>
+        <OrdersTab />
+      </div>
+    )
+  }
 
   return (
     <div className="p-4 flex flex-col gap-4">
+      <div className="flex items-center justify-end">
+        <NewJobButton />
+      </div>
       <div className="flex rounded-xl overflow-hidden border border-secondary">
+        <button
+          onClick={() => setTab('orders')}
+          className={cn(
+            'flex-1 py-2 text-xs font-medium transition-colors',
+            tab === 'orders' ? 'bg-primary text-primary-foreground' : ''
+          )}
+        >
+          {t.home.customerTitle}
+        </button>
         <button
           onClick={() => setTab('feed')}
           className={cn(
-            'flex-1 py-2 text-sm font-medium transition-colors',
+            'flex-1 py-2 text-xs font-medium transition-colors',
             tab === 'feed' ? 'bg-primary text-primary-foreground' : ''
           )}
         >
@@ -118,27 +177,16 @@ function MasterHome() {
         <button
           onClick={() => setTab('assigned')}
           className={cn(
-            'flex-1 py-2 text-sm font-medium transition-colors',
+            'flex-1 py-2 text-xs font-medium transition-colors',
             tab === 'assigned' ? 'bg-primary text-primary-foreground' : ''
           )}
         >
           {t.home.masterAssignedTitle}
         </button>
       </div>
-      {isLoading && <div className="text-center text-muted py-8">...</div>}
-      {!isLoading && jobs.length === 0 && (
-        <p className="text-center text-muted py-8">{t.home.noFeed}</p>
-      )}
-      <div className="flex flex-col gap-3">
-        {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
-        ))}
-      </div>
+      {tab === 'orders' && <OrdersTab />}
+      {tab === 'feed' && <FeedTab />}
+      {tab === 'assigned' && <AssignedTab />}
     </div>
   )
-}
-
-export default function Home() {
-  const activeRole = useStore((s) => s.activeRole)
-  return activeRole === 'customer' ? <CustomerHome /> : <MasterHome />
 }

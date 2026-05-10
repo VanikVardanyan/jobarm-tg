@@ -13,7 +13,7 @@ export default function Profile() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const showToast = useToast((s) => s.show)
-  const { activeRole, isMaster, language, themeMode, setActiveRole, setLanguage, setThemeMode, setIsMaster } = useStore()
+  const { isMaster, language, themeMode, setLanguage, setThemeMode, setIsMaster } = useStore()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
   const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: getCategories })
@@ -58,24 +58,6 @@ export default function Profile() {
     <div className="p-4 flex flex-col gap-6">
       <h1 className="text-lg font-semibold">{t.profile.title}</h1>
 
-      {isMaster && (
-        <div className="flex p-1 rounded-xl bg-secondary">
-          {(['customer', 'master'] as const).map((role) => (
-            <button
-              key={role}
-              onClick={() => setActiveRole(role)}
-              className={cn(
-                'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
-                activeRole === role
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted'
-              )}
-            >
-              {role === 'customer' ? t.onboarding.asCustomer : t.onboarding.asMaster}
-            </button>
-          ))}
-        </div>
-      )}
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">

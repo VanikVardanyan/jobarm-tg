@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
@@ -43,7 +43,7 @@ export default function JobDetail() {
   const navigate = useNavigate()
   const t = useT()
   const qc = useQueryClient()
-  const { activeRole, isMaster: storeIsMaster, language, token, setActiveRole } = useStore()
+  const { isMaster: storeIsMaster, language, token } = useStore()
   const showToast = useToast((s) => s.show)
   const userId = token ? decodeUserId(token) : null
 
@@ -62,12 +62,6 @@ export default function JobDetail() {
   const isCustomer = !!job && job.customerId === userId
   const isMaster = !!job && job.selectedMasterId === userId
 
-  // Auto-switch to master role when viewing a foreign job and user is registered as a master
-  useEffect(() => {
-    if (job && !isCustomer && storeIsMaster && activeRole !== 'master') {
-      setActiveRole('master')
-    }
-  }, [job, isCustomer, storeIsMaster])
 
   const { data: applications = [] } = useQuery({
     queryKey: ['applications', id],
@@ -310,7 +304,7 @@ export default function JobDetail() {
           </div>
         )}
 
-        {!isCustomer && !isMaster && job.status === 'new' && activeRole === 'master' && (
+        {!isCustomer && !isMaster && job.status === 'new' && storeIsMaster && (
           <div className="flex flex-col gap-3">
             <textarea
               value={applyComment}
