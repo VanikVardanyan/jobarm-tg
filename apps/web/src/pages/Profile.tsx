@@ -10,7 +10,7 @@ export default function Profile() {
   const t = useT()
   const qc = useQueryClient()
   const showToast = useToast((s) => s.show)
-  const { activeRole, isMaster, language, setActiveRole, setLanguage, setIsMaster } = useStore()
+  const { activeRole, isMaster, language, themeMode, setActiveRole, setLanguage, setThemeMode, setIsMaster } = useStore()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
   const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: getCategories })
@@ -110,6 +110,25 @@ export default function Profile() {
                 )}
               >
                 {l === 'hy' ? 'Հայ' : l === 'ru' ? 'Рус' : 'Eng'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-muted">{t.profile.theme}</label>
+          <div className="flex gap-2">
+            {(['auto', 'light', 'dark'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setThemeMode(m)}
+                className={cn(
+                  'flex-1 py-2 rounded-xl border text-sm font-medium transition-colors',
+                  themeMode === m
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-secondary'
+                )}
+              >
+                {m === 'auto' ? t.profile.themeAuto : m === 'light' ? t.profile.themeLight : t.profile.themeDark}
               </button>
             ))}
           </div>

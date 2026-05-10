@@ -1,30 +1,48 @@
+import { useStore } from '@/store'
+
 const BRAND_PRIMARY = '#6366f1'
 const BRAND_BUTTON_TEXT = '#ffffff'
 const BRAND_LINK = '#6366f1'
 
-export function applyTelegramTheme() {
-  const tg = window.Telegram?.WebApp
-  if (!tg) return
+const LIGHT = {
+  bg: '#ffffff',
+  text: '#0b0f1a',
+  hint: '#6b7280',
+  secondary: '#f3f4f6',
+}
 
-  const params = tg.themeParams ?? {}
-  const isDark = tg.colorScheme === 'dark'
+const DARK = {
+  bg: '#0b0f1a',
+  text: '#f3f4f6',
+  hint: '#9ca3af',
+  secondary: '#1f2937',
+}
 
+function isDarkMode(): boolean {
+  const mode = useStore.getState().themeMode
+  if (mode === 'light') return false
+  if (mode === 'dark') return true
+  return window.Telegram?.WebApp?.colorScheme === 'dark'
+}
+
+export function applyTheme() {
+  const dark = isDarkMode()
+  const palette = dark ? DARK : LIGHT
   const root = document.documentElement.style
-  root.setProperty('--tg-theme-bg-color', params.bg_color ?? (isDark ? '#0b0f1a' : '#ffffff'))
-  root.setProperty('--tg-theme-text-color', params.text_color ?? (isDark ? '#f3f4f6' : '#0b0f1a'))
-  root.setProperty('--tg-theme-hint-color', params.hint_color ?? (isDark ? '#9ca3af' : '#6b7280'))
-  root.setProperty(
-    '--tg-theme-secondary-bg-color',
-    params.secondary_bg_color ?? (isDark ? '#1f2937' : '#f3f4f6')
-  )
 
-  // Brand colors stay the same regardless of theme
+  root.setProperty('--tg-theme-bg-color', palette.bg)
+  root.setProperty('--tg-theme-text-color', palette.text)
+  root.setProperty('--tg-theme-hint-color', palette.hint)
+  root.setProperty('--tg-theme-secondary-bg-color', palette.secondary)
   root.setProperty('--tg-theme-button-color', BRAND_PRIMARY)
   root.setProperty('--tg-theme-button-text-color', BRAND_BUTTON_TEXT)
   root.setProperty('--tg-theme-link-color', BRAND_LINK)
+
+  document.documentElement.classList.toggle('dark', dark)
 }
 
-export function watchTelegramTheme() {
-  applyTelegramTheme()
-  window.Telegram?.WebApp?.onEvent('themeChanged', applyTelegramTheme)
+export function watchTheme() {
+  applyTheme()
+  window.Telegram?.WebApp?.onEvent('themeChanged', applyTheme)
+  useStore.subscribe(() => applyTheme())
 }
