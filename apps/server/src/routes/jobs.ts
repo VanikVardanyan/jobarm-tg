@@ -66,12 +66,16 @@ export default async function jobsRoutes(app: FastifyInstance) {
     const { userId } = request.user
     const schema = z.object({
       categoryId: z.string().uuid(),
-      description: z.string().min(10),
+      description: z.string().min(3),
       budget: z.number().int().positive(),
-      dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     })
     const data = schema.parse(request.body)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const dateFrom = data.dateFrom ? new Date(data.dateFrom) : today
+    const dateTo = data.dateTo ? new Date(data.dateTo) : dateFrom
 
     const job = await db.job.create({
       data: {
@@ -79,8 +83,8 @@ export default async function jobsRoutes(app: FastifyInstance) {
         categoryId: data.categoryId,
         description: data.description,
         budget: data.budget,
-        dateFrom: new Date(data.dateFrom),
-        dateTo: new Date(data.dateTo),
+        dateFrom,
+        dateTo,
       },
       include: jobInclude,
     })

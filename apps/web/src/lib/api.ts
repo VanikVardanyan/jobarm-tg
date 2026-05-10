@@ -36,8 +36,8 @@ export const postJob = (data: {
   categoryId: string
   description: string
   budget: number
-  dateFrom: string
-  dateTo: string
+  dateFrom?: string
+  dateTo?: string
 }) => client.post<Job>('/jobs', data).then((r) => r.data)
 
 // Applications

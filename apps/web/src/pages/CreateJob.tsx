@@ -26,7 +26,12 @@ export default function CreateJob() {
 
   const mut = useMutation({
     mutationFn: () =>
-      postJob({ categoryId, description, budget: Number(budget), dateFrom, dateTo: dateFrom }),
+      postJob({
+        categoryId,
+        description,
+        budget: Number(budget),
+        ...(dateFrom ? { dateFrom, dateTo: dateFrom } : {}),
+      }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
       navigate('/home')
@@ -39,9 +44,8 @@ export default function CreateJob() {
 
   const submit = () => {
     if (!categoryId) return showToast('Выберите категорию', 'error')
-    if (description.trim().length < 10) return showToast('Описание минимум 10 символов', 'error')
+    if (description.trim().length < 3) return showToast('Описание минимум 3 символа', 'error')
     if (!(Number(budget) > 0)) return showToast('Укажите бюджет', 'error')
-    if (!dateFrom) return showToast('Укажите дату', 'error')
     mut.mutate()
   }
 
@@ -95,7 +99,7 @@ export default function CreateJob() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted">{t.createJob.dateFrom}</label>
+          <label className="text-sm text-muted">{t.createJob.dateFrom} <span className="text-xs">({t.createJob.optional})</span></label>
           <input
             type="date"
             value={dateFrom}
