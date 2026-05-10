@@ -38,7 +38,7 @@ export default function MasterSettings() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="flex items-center gap-3 p-4 border-b border-secondary">
+      <header className="flex items-center gap-3 px-4 pb-4 border-b border-secondary tma-safe-top">
         <button onClick={() => navigate(-1)} aria-label="Back">
           <ArrowLeft className="w-5 h-5" />
         </button>

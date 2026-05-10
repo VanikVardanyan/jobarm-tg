@@ -55,7 +55,7 @@ export default function Profile() {
     setSelectedCats((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
 
   return (
-    <div className="p-4 flex flex-col gap-6">
+    <div className="px-4 pb-4 flex flex-col gap-6 tma-safe-top">
       <h1 className="text-lg font-semibold">{t.profile.title}</h1>
 
 

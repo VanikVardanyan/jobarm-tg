@@ -50,3 +50,7 @@ html, body {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Padding reserved for Telegram's floating close/kebab button in fullscreen */
+.tma-safe-top { padding-top: var(--header-top, 12px); }
+.tma-safe-bottom { padding-bottom: calc(var(--safe-bottom, 0px) + 16px); }

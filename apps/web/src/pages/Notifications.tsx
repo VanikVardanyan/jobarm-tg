@@ -60,7 +60,7 @@ export default function Notifications() {
   }
 
   return (
-    <div className="p-4 flex flex-col gap-3">
+    <div className="px-4 pb-4 flex flex-col gap-3 tma-safe-top">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">{t.notifications.title}</h1>
         {unread > 0 && (

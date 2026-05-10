@@ -54,7 +54,7 @@ export default function Masters() {
         </div>
       </div>
 
-      <div className="p-4 flex flex-col gap-3">
+      <div className="px-4 pb-4 flex flex-col gap-3 tma-safe-top">
         {isLoading && <div className="text-center text-muted py-8">...</div>}
         {masters.map((master) => (
           <button

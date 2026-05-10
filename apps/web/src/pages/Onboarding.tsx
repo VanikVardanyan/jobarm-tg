@@ -66,7 +66,7 @@ export default function Onboarding() {
     setSelectedCats((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
 
   return (
-    <div className="min-h-screen flex flex-col p-6">
+    <div className="min-h-screen flex flex-col px-6 pb-6 tma-safe-top">
       <div className="flex gap-2 mb-8 justify-center">
         {([1, 2, 3, 4] as Step[]).map((s) => (
           <div

@@ -140,7 +140,7 @@ export default function Home() {
   // Customer only — single screen with own orders + create button
   if (!isMaster) {
     return (
-      <div className="p-4 flex flex-col gap-4">
+      <div className="px-4 pb-4 flex flex-col gap-4 tma-safe-top">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold">{t.home.customerTitle}</h1>
           <NewJobButton />
@@ -151,7 +151,7 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4 flex flex-col gap-4">
+    <div className="px-4 pb-4 flex flex-col gap-4 tma-safe-top">
       <div className="flex items-center justify-end">
         <NewJobButton />
       </div>
