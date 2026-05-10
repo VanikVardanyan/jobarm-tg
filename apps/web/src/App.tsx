@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '@/store'
 import { postTelegramAuth } from '@/lib/api'
 import Layout from '@/components/Layout'
@@ -17,6 +17,7 @@ import MasterSettings from '@/pages/MasterSettings'
 export default function App() {
   const { token, isOnboarded, language, setToken } = useStore()
   const [loading, setLoading] = useState(!token)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (token) { setLoading(false); return }
@@ -26,6 +27,15 @@ export default function App() {
       .then(({ token: t }) => setToken(t))
       .finally(() => setLoading(false))
   }, [])
+
+  // Deep-link from bot notification: ?startapp=job_<id> opens that job
+  useEffect(() => {
+    if (!token || !isOnboarded) return
+    const param = window.Telegram?.WebApp?.initDataUnsafe?.start_param
+    if (param?.startsWith('job_')) {
+      navigate(`/jobs/${param.slice(4)}`, { replace: true })
+    }
+  }, [token, isOnboarded])
 
   if (loading) {
     return (

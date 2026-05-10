@@ -42,6 +42,13 @@ function JobCard({ job }: { job: Job }) {
         <span className="font-medium text-primary">{formatBudget(job.budget)}</span>
         <span>{formatDate(job.dateFrom, lang)}</span>
       </div>
+      {job.applicationCount > 0 && job.status === 'new' && (
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+            {job.applicationCount} {job.applicationCount === 1 ? 'отклик' : 'откликов'}
+          </span>
+        </div>
+      )}
     </button>
   )
 }

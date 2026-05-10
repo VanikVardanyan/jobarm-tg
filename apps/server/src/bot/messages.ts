@@ -3,7 +3,7 @@ export function escapeMarkdown(text: string | number): string {
   return text.replace(/[*_`[\]]/g, (ch) => `\\${ch}`)
 }
 
-export type Language = 'ru' | 'en'
+export type Language = 'hy' | 'ru' | 'en'
 
 export type MessageKey =
   | 'newJob'
@@ -16,9 +16,23 @@ export type MessageKey =
 type MessageParams = Record<string, string | number>
 
 const templates: Record<Language, Record<MessageKey, (p: MessageParams) => string>> = {
+  hy: {
+    newJob: (p) =>
+      `🔔 *Նոր առաջադրանք!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} ֏\n📅 ${p.dateFrom} — ${p.dateTo}`,
+    newApplication: (p) =>
+      `👨‍🔧 *${escapeMarkdown(p.masterName)}*-ը արձագանքել է ձեր պատվերին․\n_${escapeMarkdown(p.jobDescription)}_`,
+    masterSelected: (p) =>
+      `✅ Պատվիրատուն ընտրել է Ձեզ։\nՊատվեր․ _${escapeMarkdown(p.jobDescription)}_\nԿապ հաստատեք պատվիրատուի հետ։`,
+    masterMarkedDone: (p) =>
+      `🏁 Վարպետը նշել է պատվերը որպես կատարված․\n_${escapeMarkdown(p.jobDescription)}_\nՀաստատեք ավարտը հավելվածում։`,
+    customerConfirmed: (p) =>
+      `🎉 Պատվերը ավարտված է!\n_${escapeMarkdown(p.jobDescription)}_\nՊատվիրատուն հաստատել է կատարումը։`,
+    newReview: (p) =>
+      `⭐ Նոր կարծիք․ *${p.rating}/5*${p.comment ? `\n_${escapeMarkdown(p.comment)}_` : ''}`,
+  },
   ru: {
     newJob: (p) =>
-      `🔔 *Новая заявка!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
+      `🔔 *Новая заявка!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} ֏\n📅 ${p.dateFrom} — ${p.dateTo}`,
     newApplication: (p) =>
       `👨‍🔧 *${escapeMarkdown(p.masterName)}* откликнулся на вашу заявку:\n_${escapeMarkdown(p.jobDescription)}_`,
     masterSelected: (p) =>
@@ -32,7 +46,7 @@ const templates: Record<Language, Record<MessageKey, (p: MessageParams) => strin
   },
   en: {
     newJob: (p) =>
-      `🔔 *New job!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} AMD\n📅 ${p.dateFrom} — ${p.dateTo}`,
+      `🔔 *New job!*\n\n📂 ${escapeMarkdown(p.category)}\n📝 ${escapeMarkdown(p.description)}\n💰 ${p.budget} ֏\n📅 ${p.dateFrom} — ${p.dateTo}`,
     newApplication: (p) =>
       `👨‍🔧 *${escapeMarkdown(p.masterName)}* applied to your job:\n_${escapeMarkdown(p.jobDescription)}_`,
     masterSelected: (p) =>
@@ -47,6 +61,6 @@ const templates: Record<Language, Record<MessageKey, (p: MessageParams) => strin
 }
 
 export function buildMessage(lang: string, key: MessageKey, params: MessageParams): string {
-  const langTemplates = templates[lang as Language] ?? templates.ru
+  const langTemplates = templates[lang as Language] ?? templates.hy
   return langTemplates[key](params)
 }

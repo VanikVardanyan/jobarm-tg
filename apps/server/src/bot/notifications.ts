@@ -9,7 +9,11 @@ export function initNotifications(bot: Telegraf) {
   _bot = bot
 }
 
-async function send(telegramId: string, text: string, buttonLabel = 'Բացել'): Promise<void> {
+async function send(
+  telegramId: string,
+  text: string,
+  opts: { jobId?: string; buttonLabel?: string } = {}
+): Promise<void> {
   if (!_bot) return
   try {
     const user = await db.user.findUnique({
@@ -17,10 +21,13 @@ async function send(telegramId: string, text: string, buttonLabel = 'Բացել'
       select: { chatId: true },
     })
     if (!user?.chatId) return
+    const url = opts.jobId
+      ? `${config.MINI_APP_URL}?startapp=job_${opts.jobId}`
+      : config.MINI_APP_URL
     await _bot.telegram.sendMessage(user.chatId, text, {
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [[{ text: buttonLabel, web_app: { url: config.MINI_APP_URL } }]],
+        inline_keyboard: [[{ text: opts.buttonLabel ?? 'Բացել', web_app: { url } }]],
       },
     })
   } catch {
@@ -48,11 +55,12 @@ export async function notifyMastersNewJob(jobId: string): Promise<void> {
 
     await Promise.all(
       masters.map((master) => {
-        const lang = master.language ?? 'ru'
-        const locale = lang === 'en' ? 'en-US' : 'ru-RU'
+        const lang = master.language ?? 'hy'
+        const locale = lang === 'en' ? 'en-US' : lang === 'ru' ? 'ru-RU' : 'hy-AM'
         const dateFrom = job.dateFrom.toLocaleDateString(locale, { day: 'numeric', month: 'long' })
         const dateTo = job.dateTo.toLocaleDateString(locale, { day: 'numeric', month: 'long' })
-        const category = lang === 'en' ? job.category.nameEn : job.category.nameRu
+        const category =
+          lang === 'en' ? job.category.nameEn : lang === 'hy' ? job.category.nameHy : job.category.nameRu
         const text = buildMessage(lang, 'newJob', {
           category,
           description: job.description.slice(0, 100),
@@ -60,7 +68,7 @@ export async function notifyMastersNewJob(jobId: string): Promise<void> {
           dateFrom,
           dateTo,
         })
-        return send(master.telegramId, text)
+        return send(master.telegramId, text, { jobId: job.id })
       })
     )
   } catch {
@@ -83,12 +91,12 @@ export async function notifyCustomerNewApplication(jobId: string, masterId: stri
     })
     if (!customer) return
 
-    const lang = customer.language ?? 'ru'
+    const lang = customer.language ?? 'hy'
     const text = buildMessage(lang, 'newApplication', {
       masterName: master.name,
       jobDescription: job.description.slice(0, 100),
     })
-    await send(customer.telegramId, text)
+    await send(customer.telegramId, text, { jobId })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -103,11 +111,11 @@ export async function notifyMasterSelected(jobId: string, masterId: string): Pro
     ])
     if (!job || !master) return
 
-    const lang = master.language ?? 'ru'
+    const lang = master.language ?? 'hy'
     const text = buildMessage(lang, 'masterSelected', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(master.telegramId, text)
+    await send(master.telegramId, text, { jobId })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -128,11 +136,11 @@ export async function notifyMasterJobDone(jobId: string): Promise<void> {
     })
     if (!customer) return
 
-    const lang = customer.language ?? 'ru'
+    const lang = customer.language ?? 'hy'
     const text = buildMessage(lang, 'masterMarkedDone', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(customer.telegramId, text)
+    await send(customer.telegramId, text, { jobId })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -147,11 +155,11 @@ export async function notifyJobCompleted(jobId: string, masterId: string): Promi
     ])
     if (!job || !master) return
 
-    const lang = master.language ?? 'ru'
+    const lang = master.language ?? 'hy'
     const text = buildMessage(lang, 'customerConfirmed', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(master.telegramId, text)
+    await send(master.telegramId, text, { jobId })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -170,7 +178,7 @@ export async function notifyMasterNewReview(
     })
     if (!master) return
 
-    const lang = master.language ?? 'ru'
+    const lang = master.language ?? 'hy'
     const text = buildMessage(lang, 'newReview', {
       rating,
       comment: comment ?? '',
