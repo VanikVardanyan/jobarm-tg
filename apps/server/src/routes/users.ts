@@ -1,6 +1,13 @@
 import type { FastifyInstance } from 'fastify'
+import { mkdir, writeFile, unlink } from 'fs/promises'
+import { join } from 'path'
+import { randomUUID } from 'crypto'
+import sharp from 'sharp'
 import { z } from 'zod'
 import { db } from '../db.js'
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/www/jobarm-uploads/avatars'
+const AVATAR_PUBLIC_PATH = '/avatars'
 
 async function getMasterStats(userId: string) {
   const result = await db.review.aggregate({
@@ -71,5 +78,46 @@ export default async function usersRoutes(app: FastifyInstance) {
       data: categoryIds.map((categoryId) => ({ userId, categoryId })),
     })
     return { ok: true }
+  })
+
+  app.post('/me/avatar', { preHandler: [app.authenticate] }, async (request, reply) => {
+    const { userId } = request.user
+    const file = await request.file({ limits: { fileSize: 5 * 1024 * 1024 } })
+    if (!file) return reply.status(400).send({ error: 'No file' })
+    if (!/^image\//.test(file.mimetype))
+      return reply.status(400).send({ error: 'Only images are allowed' })
+
+    const buf = await file.toBuffer()
+    const processed = await sharp(buf)
+      .rotate()
+      .resize(256, 256, { fit: 'cover', position: 'centre' })
+      .jpeg({ quality: 82, progressive: true })
+      .toBuffer()
+
+    await mkdir(UPLOAD_DIR, { recursive: true })
+    const filename = `${randomUUID()}.jpg`
+    await writeFile(join(UPLOAD_DIR, filename), processed)
+
+    // Best-effort cleanup of the previous avatar
+    const prev = await db.user.findUnique({ where: { id: userId }, select: { avatarUrl: true } })
+    if (prev?.avatarUrl?.startsWith(`${AVATAR_PUBLIC_PATH}/`)) {
+      const prevName = prev.avatarUrl.slice(AVATAR_PUBLIC_PATH.length + 1)
+      unlink(join(UPLOAD_DIR, prevName)).catch(() => undefined)
+    }
+
+    const avatarUrl = `${AVATAR_PUBLIC_PATH}/${filename}`
+    await db.user.update({ where: { id: userId }, data: { avatarUrl } })
+    return { avatarUrl }
+  })
+
+  app.delete('/me/avatar', { preHandler: [app.authenticate] }, async (request, reply) => {
+    const { userId } = request.user
+    const user = await db.user.findUnique({ where: { id: userId }, select: { avatarUrl: true } })
+    if (user?.avatarUrl?.startsWith(`${AVATAR_PUBLIC_PATH}/`)) {
+      const name = user.avatarUrl.slice(AVATAR_PUBLIC_PATH.length + 1)
+      unlink(join(UPLOAD_DIR, name)).catch(() => undefined)
+    }
+    await db.user.update({ where: { id: userId }, data: { avatarUrl: null } })
+    return reply.status(204).send()
   })
 }

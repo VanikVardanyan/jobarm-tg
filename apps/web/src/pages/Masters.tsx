@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getMasters, getCategories } from '@/lib/api'
+import { Avatar } from '@/components/Avatar'
 import { cn } from '@/lib/utils'
 import { Star } from 'lucide-react'
 
@@ -63,27 +64,30 @@ export default function Masters() {
           <button
             key={master.id}
             onClick={() => navigate(`/masters/${master.id}`)}
-            className="w-full text-left p-4 bg-secondary rounded-xl flex flex-col gap-2"
+            className="w-full text-left p-4 bg-secondary rounded-xl flex items-start gap-3"
           >
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{master.name}</span>
-              {typeof master.rating === 'number' && (
-                <div className="flex items-center gap-1 text-sm">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span>{master.rating.toFixed(1)}</span>
-                  <span className="text-muted">({master.reviewCount})</span>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {master.categories.map((cat) => (
-                <span
-                  key={cat.id}
-                  className="text-xs px-2 py-0.5 rounded-full bg-background border border-muted/30"
-                >
-                  {categoryName(cat, language)}
-                </span>
-              ))}
+            <Avatar url={master.avatarUrl} name={master.name} size={48} />
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium truncate">{master.name}</span>
+                {typeof master.rating === 'number' && (
+                  <div className="flex items-center gap-1 text-sm flex-shrink-0">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span>{master.rating.toFixed(1)}</span>
+                    <span className="text-muted">({master.reviewCount})</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {master.categories.map((cat) => (
+                  <span
+                    key={cat.id}
+                    className="text-xs px-2 py-0.5 rounded-full bg-background border border-muted/30"
+                  >
+                    {categoryName(cat, language)}
+                  </span>
+                ))}
+              </div>
             </div>
           </button>
         ))}

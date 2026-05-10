@@ -22,6 +22,16 @@ export const postMeMaster = (categoryIds: string[]) =>
   client.post<UserProfile>('/me/master', { categoryIds }).then((r) => r.data)
 export const putMeCategories = (categoryIds: string[]) =>
   client.put('/me/categories', { categoryIds }).then((r) => r.data)
+export const uploadAvatar = (file: File) => {
+  const fd = new FormData()
+  fd.append('file', file)
+  return client
+    .post<{ avatarUrl: string }>('/me/avatar', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then((r) => r.data)
+}
+export const deleteAvatar = () => client.delete('/me/avatar').then((r) => r.data)
 
 // Notifications
 export interface NotificationItem {
@@ -66,6 +76,8 @@ export const getJob = (id: string) =>
         customerUsername: string | null
         masterName: string | null
         customerName: string
+        masterAvatar: string | null
+        customerAvatar: string | null
       }
     >(`/jobs/${id}`)
     .then((r) => r.data)

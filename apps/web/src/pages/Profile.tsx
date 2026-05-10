@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, Smartphone, ChevronRight } from 'lucide-react'
+import { Sun, Moon, Smartphone, ChevronRight, Camera } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
-import { getMe, putMe, postMeMaster, getCategories } from '@/lib/api'
+import { getMe, putMe, postMeMaster, getCategories, uploadAvatar } from '@/lib/api'
 import { useToast } from '@/components/Toast'
+import { Avatar } from '@/components/Avatar'
 import { cn } from '@/lib/utils'
 
 export default function Profile() {
@@ -51,12 +52,58 @@ export default function Profile() {
     onError: () => showToast(t.errors.generic, 'error'),
   })
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const avatarMut = useMutation({
+    mutationFn: (file: File) => uploadAvatar(file),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+      showToast(t.profile.saved, 'success')
+    },
+    onError: () => showToast(t.errors.generic, 'error'),
+  })
+
+  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      showToast(language === 'hy' ? 'Չափը >5ՄԲ' : language === 'en' ? 'Max 5MB' : 'Не больше 5МБ', 'error')
+      return
+    }
+    avatarMut.mutate(file)
+    e.target.value = ''
+  }
+
   const toggleCat = (id: string) =>
     setSelectedCats((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
 
   return (
     <div className="px-4 pb-4 flex flex-col gap-6 tma-safe-top">
       <h1 className="text-lg font-semibold">{t.profile.title}</h1>
+
+      <div className="flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={avatarMut.isPending}
+          className="relative group"
+          aria-label="Change avatar"
+        >
+          <Avatar url={me?.avatarUrl} name={name || me?.name || '?'} size={96} />
+          <span className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-active:opacity-100 flex items-center justify-center transition-opacity">
+            <Camera className="w-6 h-6 text-white" />
+          </span>
+          <span className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
+            <Camera className="w-4 h-4" />
+          </span>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={onPickFile}
+        />
+      </div>
 
 
       <div className="flex flex-col gap-3">

@@ -95,6 +95,8 @@ export default async function jobsRoutes(app: FastifyInstance) {
         customerUsername,
         masterName: job.selectedMaster?.name ?? null,
         customerName: job.customer.name,
+        masterAvatar: job.selectedMaster?.avatarUrl ?? null,
+        customerAvatar: job.customer.avatarUrl,
       }
     }
   )

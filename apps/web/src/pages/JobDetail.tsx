@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { useToast } from '@/components/Toast'
+import { Avatar } from '@/components/Avatar'
 import {
   getJob,
   getApplications,
@@ -183,6 +184,7 @@ export default function JobDetail() {
           const phone = isCustomer ? job.masterPhone! : job.customerPhone!
           const name = isCustomer ? job.masterName : job.customerName
           const username = isCustomer ? job.masterUsername : job.customerUsername
+          const avatar = isCustomer ? job.masterAvatar : job.customerAvatar
           const tgUrl = username ? `https://t.me/${username}` : null
           const tg = window.Telegram?.WebApp
           const cleanPhone = phone.replace(/[^+\d]/g, '')
@@ -198,11 +200,14 @@ export default function JobDetail() {
           }
           return (
             <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-3">
-              <div>
-                <p className="text-xs text-muted uppercase tracking-wide">
-                  {isCustomer ? 'Мастер' : 'Заказчик'}
-                </p>
-                <p className="font-semibold mt-1">{name}</p>
+              <div className="flex items-center gap-3">
+                <Avatar url={avatar} name={name ?? '?'} size={48} />
+                <div>
+                  <p className="text-xs text-muted uppercase tracking-wide">
+                    {isCustomer ? 'Мастер' : 'Заказчик'}
+                  </p>
+                  <p className="font-semibold mt-0.5">{name}</p>
+                </div>
               </div>
               <button
                 onClick={openCall}
@@ -256,15 +261,18 @@ export default function JobDetail() {
                 className="p-3 bg-secondary rounded-xl flex flex-col gap-2 cursor-pointer active:opacity-70"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium">{app.master.name}</p>
-                    {typeof app.master.rating === 'number' ? (
-                      <p className="text-xs text-muted mt-0.5">
-                        ⭐ {app.master.rating.toFixed(1)} · {app.master.reviewCount ?? 0} {t.masters.reviews}
-                      </p>
-                    ) : (
-                      <p className="text-xs text-muted mt-0.5">{t.masters.noReviews}</p>
-                    )}
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Avatar url={app.master.avatarUrl} name={app.master.name} size={40} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{app.master.name}</p>
+                      {typeof app.master.rating === 'number' ? (
+                        <p className="text-xs text-muted mt-0.5">
+                          ⭐ {app.master.rating.toFixed(1)} · {app.master.reviewCount ?? 0} {t.masters.reviews}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted mt-0.5">{t.masters.noReviews}</p>
+                      )}
+                    </div>
                   </div>
                   <button
                     onClick={(e) => {

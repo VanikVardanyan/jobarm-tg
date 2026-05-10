@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import multipart from '@fastify/multipart'
 import authPlugin from './plugins/auth.js'
 import errorHandler from './plugins/error-handler.js'
 import authRoutes from './routes/auth.js'
@@ -15,6 +16,7 @@ export function buildApp() {
   const app = Fastify({ logger: true })
 
   app.register(cors, { origin: true })
+  app.register(multipart, { limits: { fileSize: 5 * 1024 * 1024 } })
   app.register(authPlugin)
   app.register(errorHandler)
 

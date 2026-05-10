@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getMaster } from '@/lib/api'
+import { Avatar } from '@/components/Avatar'
 import { formatDate, cn } from '@/lib/utils'
 import { ArrowLeft, Star } from 'lucide-react'
 
@@ -52,17 +53,21 @@ export default function MasterProfile() {
       </header>
 
       <div className="flex-1 p-4 flex flex-col gap-6">
-        {typeof master.rating === 'number' ? (
-          <div className="flex items-center gap-3">
-            <StarDisplay value={master.rating} />
-            <span className="font-semibold">{master.rating.toFixed(1)}</span>
-            <span className="text-sm text-muted">
-              {master.reviewCount} {t.masters.reviews}
-            </span>
-          </div>
-        ) : (
-          <span className="text-sm text-muted">{t.masters.noReviews}</span>
-        )}
+        <div className="flex flex-col items-center gap-3">
+          <Avatar url={master.avatarUrl} name={master.name} size={96} />
+          <h2 className="text-xl font-semibold">{master.name}</h2>
+          {typeof master.rating === 'number' ? (
+            <div className="flex items-center gap-2 text-sm">
+              <StarDisplay value={master.rating} />
+              <span className="font-semibold">{master.rating.toFixed(1)}</span>
+              <span className="text-muted">
+                · {master.reviewCount} {t.masters.reviews}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm text-muted">{t.masters.noReviews}</span>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-2">
           {master.categories.map((cat) => (
