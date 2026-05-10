@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useT } from '@/lib/i18n'
+import { useStore } from '@/store'
+import { useT, categoryName } from '@/lib/i18n'
 import { getCategories, postJob } from '@/lib/api'
 import { ArrowLeft } from 'lucide-react'
 
@@ -9,6 +10,7 @@ export default function CreateJob() {
   const t = useT()
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const language = useStore((s) => s.language)
 
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
@@ -53,7 +55,7 @@ export default function CreateJob() {
             <option value="">—</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.nameRu}
+                {categoryName(c, language)}
               </option>
             ))}
           </select>

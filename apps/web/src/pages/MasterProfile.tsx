@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
+import { useT, categoryName } from '@/lib/i18n'
 import { getMaster } from '@/lib/api'
 import { formatDate, cn } from '@/lib/utils'
 import { ArrowLeft, Star } from 'lucide-react'
@@ -67,7 +67,7 @@ export default function MasterProfile() {
         <div className="flex flex-wrap gap-2">
           {master.categories.map((cat) => (
             <span key={cat.id} className="px-3 py-1 rounded-full bg-secondary text-sm">
-              {language === 'en' ? cat.nameEn : cat.nameRu}
+              {categoryName(cat, language)}
             </span>
           ))}
         </div>

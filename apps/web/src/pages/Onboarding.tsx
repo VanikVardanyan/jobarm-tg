@@ -1,63 +1,69 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
-import { getCategories, putMe, postMeMaster } from '@/lib/api'
-import { cn } from '@/lib/utils'
-import type { Language } from '@jobbarm/shared'
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useStore } from "@/store";
+import { useT, categoryName } from "@/lib/i18n";
+import { getCategories, putMe, postMeMaster } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import type { Language } from "@jobbarm/shared";
 
-type Step = 1 | 2 | 3 | 4
+type Step = 1 | 2 | 3 | 4;
 
 export default function Onboarding() {
-  const [step, setStep] = useState<Step>(1)
-  const [lang, setLang] = useState<Language>('hy')
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [role, setRole] = useState<'customer' | 'master' | 'both'>('customer')
-  const [selectedCats, setSelectedCats] = useState<string[]>([])
-  const [submitting, setSubmitting] = useState(false)
+  const [step, setStep] = useState<Step>(1);
+  const [lang, setLang] = useState<Language>("hy");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState<"customer" | "master" | "both">("customer");
+  const [selectedCats, setSelectedCats] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
-  const { setLanguage, setIsMaster, setActiveRole, setIsOnboarded } = useStore()
-  const t = useT()
+  const { setLanguage, setIsMaster, setActiveRole, setIsOnboarded } = useStore();
+  const t = useT();
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ["categories"],
     queryFn: getCategories,
     enabled: step === 4,
-  })
+  });
 
-  const handleStep1 = () => { setLanguage(lang); setStep(2) }
+  const handleStep1 = () => {
+    setLanguage(lang);
+    setStep(2);
+  };
 
   const handleStep2 = () => {
-    if (!name.trim() || !phone.trim()) return
-    setStep(3)
-  }
+    if (!name.trim() || !phone.trim()) return;
+    setStep(3);
+  };
 
   const handleStep3 = () => {
-    if (role === 'master' || role === 'both') { setStep(4) }
-    else { void handleFinish() }
-  }
+    if (role === "master" || role === "both") {
+      setStep(4);
+    } else {
+      void handleFinish();
+    }
+  };
 
   const handleFinish = async () => {
-    setSubmitting(true)
+    setSubmitting(true);
     try {
-      await putMe({ name: name.trim(), phone: phone.trim(), language: lang })
-      const isMaster = role === 'master' || role === 'both'
+      await putMe({ name: name.trim(), phone: phone.trim(), language: lang });
+      const isMaster = role === "master" || role === "both";
       if (isMaster && selectedCats.length > 0) {
-        await postMeMaster(selectedCats)
+        await postMeMaster(selectedCats);
       }
-      setIsMaster(isMaster)
-      setActiveRole(role === 'master' ? 'master' : 'customer')
-      setIsOnboarded(true)
+      setIsMaster(isMaster);
+      setActiveRole(role === "master" ? "master" : "customer");
+      setIsOnboarded(true);
     } catch {
       // silent — user can retry
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const toggleCat = (id: string) =>
-    setSelectedCats((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
+    setSelectedCats((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
 
   return (
     <div className="min-h-screen flex flex-col p-6">
@@ -65,10 +71,7 @@ export default function Onboarding() {
         {([1, 2, 3, 4] as Step[]).map((s) => (
           <div
             key={s}
-            className={cn(
-              'w-2 h-2 rounded-full transition-colors',
-              s <= step ? 'bg-primary' : 'bg-secondary'
-            )}
+            className={cn("w-2 h-2 rounded-full transition-colors", s <= step ? "bg-primary" : "bg-secondary")}
           />
         ))}
       </div>
@@ -77,16 +80,16 @@ export default function Onboarding() {
         <div className="flex-1 flex flex-col gap-6">
           <h1 className="text-xl font-semibold">{t.onboarding.step1Title}</h1>
           <div className="flex flex-col gap-3">
-            {(['hy', 'ru', 'en'] as Language[]).map((l) => (
+            {(["hy", "ru", "en"] as Language[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
                 className={cn(
-                  'p-4 rounded-xl border-2 text-left font-medium transition-colors',
-                  lang === l ? 'border-primary bg-primary/10' : 'border-secondary'
+                  "p-4 rounded-xl border-2 text-left font-medium transition-colors",
+                  lang === l ? "border-primary bg-primary/10" : "border-secondary"
                 )}
               >
-                {l === 'hy' ? '🇦🇲 Հայերեն' : l === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}
+                {l === "hy" ? "🇦🇲 Հայերեն" : l === "ru" ? "🇷🇺 Русский" : "🇬🇧 English"}
               </button>
             ))}
           </div>
@@ -133,17 +136,17 @@ export default function Onboarding() {
           <div className="flex flex-col gap-3">
             {(
               [
-                { value: 'customer', label: t.onboarding.asCustomer, desc: t.onboarding.asCustomerDesc },
-                { value: 'master', label: t.onboarding.asMaster, desc: t.onboarding.asMasterDesc },
-                { value: 'both', label: t.onboarding.bothRoles, desc: '' },
+                { value: "customer", label: t.onboarding.asCustomer, desc: t.onboarding.asCustomerDesc },
+                { value: "master", label: t.onboarding.asMaster, desc: t.onboarding.asMasterDesc },
+                { value: "both", label: t.onboarding.bothRoles, desc: "" },
               ] as const
             ).map(({ value, label, desc }) => (
               <button
                 key={value}
                 onClick={() => setRole(value)}
                 className={cn(
-                  'p-4 rounded-xl border-2 text-left transition-colors',
-                  role === value ? 'border-primary bg-primary/10' : 'border-secondary'
+                  "p-4 rounded-xl border-2 text-left transition-colors",
+                  role === value ? "border-primary bg-primary/10" : "border-secondary"
                 )}
               >
                 <div className="font-medium">{label}</div>
@@ -155,7 +158,7 @@ export default function Onboarding() {
             onClick={handleStep3}
             className="mt-auto w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium"
           >
-            {role === 'customer' ? t.onboarding.finish : t.onboarding.next}
+            {role === "customer" ? t.onboarding.finish : t.onboarding.next}
           </button>
         </div>
       )}
@@ -170,13 +173,13 @@ export default function Onboarding() {
                 key={cat.id}
                 onClick={() => toggleCat(cat.id)}
                 className={cn(
-                  'px-3 py-2 rounded-full border text-sm transition-colors',
+                  "px-3 py-2 rounded-full border text-sm transition-colors",
                   selectedCats.includes(cat.id)
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-secondary'
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-secondary"
                 )}
               >
-                {lang === 'en' ? cat.nameEn : cat.nameRu}
+                {categoryName(cat, lang)}
               </button>
             ))}
           </div>
@@ -185,10 +188,10 @@ export default function Onboarding() {
             disabled={selectedCats.length === 0 || submitting}
             className="mt-auto w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
           >
-            {submitting ? '...' : t.onboarding.finish}
+            {submitting ? "..." : t.onboarding.finish}
           </button>
         </div>
       )}
     </div>
-  )
+  );
 }

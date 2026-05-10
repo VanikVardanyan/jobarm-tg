@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
+import { useT, categoryName } from '@/lib/i18n'
 import { getMyJobs, getJobFeed, getAssignedJobs } from '@/lib/api'
 import { formatDate, formatBudget, cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
@@ -32,7 +32,7 @@ function JobCard({ job }: { job: Job }) {
       className="w-full text-left p-4 rounded-xl bg-secondary flex flex-col gap-2"
     >
       <div className="flex items-center justify-between">
-        <span className="font-medium text-sm line-clamp-1">{job.category.nameRu}</span>
+        <span className="font-medium text-sm line-clamp-1">{categoryName(job.category, lang)}</span>
         <StatusBadge status={job.status} />
       </div>
       <p className="text-sm text-muted line-clamp-2">{job.description}</p>

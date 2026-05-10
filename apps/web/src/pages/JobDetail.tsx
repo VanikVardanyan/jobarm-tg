@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
+import { useT, categoryName } from '@/lib/i18n'
 import {
   getJob,
   getApplications,
@@ -107,7 +107,7 @@ export default function JobDetail() {
         <button onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="font-semibold line-clamp-1">{job.category.nameRu}</span>
+        <span className="font-semibold line-clamp-1">{categoryName(job.category, language)}</span>
       </header>
 
       <div className="flex-1 p-4 flex flex-col gap-4">

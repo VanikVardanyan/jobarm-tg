@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
-import { getMe, putMe, postMeMaster, getCategories } from '@/lib/api'
+import { useT, categoryName } from '@/lib/i18n'
+import { getMe, putMe, postMeMaster, putMeCategories, getCategories } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 export default function Profile() {
   const t = useT()
   const qc = useQueryClient()
-  const { activeRole, isMaster, language, setActiveRole, setLanguage, setIsMaster, reset } =
-    useStore()
+  const { activeRole, isMaster, language, setActiveRole, setLanguage, setIsMaster } = useStore()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
   const { data: categories = [] } = useQuery({ queryKey: ['categories'], queryFn: getCategories })
@@ -39,6 +38,11 @@ export default function Profile() {
       setShowMasterForm(false)
       void qc.invalidateQueries({ queryKey: ['me'] })
     },
+  })
+
+  const updateCatsMut = useMutation({
+    mutationFn: () => putMeCategories(selectedCats),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['me'] }),
   })
 
   const toggleCat = (id: string) =>
@@ -127,7 +131,7 @@ export default function Profile() {
                         : 'border-secondary'
                     )}
                   >
-                    {language === 'en' ? cat.nameEn : cat.nameRu}
+                    {categoryName(cat, language)}
                   </button>
                 ))}
               </div>
@@ -143,12 +147,34 @@ export default function Profile() {
         </div>
       )}
 
-      <button
-        onClick={reset}
-        className="w-full py-2.5 rounded-xl border border-muted/50 text-muted font-medium text-sm"
-      >
-        {t.profile.logout}
-      </button>
+      {isMaster && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-muted">{t.onboarding.selectCategories}</p>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => toggleCat(cat.id)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full border text-sm transition-colors',
+                  selectedCats.includes(cat.id)
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-secondary'
+                )}
+              >
+                {categoryName(cat, language)}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => updateCatsMut.mutate()}
+            disabled={selectedCats.length === 0 || updateCatsMut.isPending}
+            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
+          >
+            {updateCatsMut.isPending ? '...' : t.profile.save}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

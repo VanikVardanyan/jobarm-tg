@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Jobarm icon">
+  <defs>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E7C8A"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M 12 32 Q 12 12 32 12"
+        fill="none" stroke="url(#iconGrad)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 32 52 Q 52 52 52 32"
+        fill="none" stroke="url(#iconGrad)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="6" fill="url(#iconGrad)"/>
+</svg>

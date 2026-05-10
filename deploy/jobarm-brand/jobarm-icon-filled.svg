@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Jobarm icon">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E7C8A"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="64" height="64" rx="14" fill="url(#bgGrad)"/>
+
+  <!-- White mark on top -->
+  <path d="M 16 32 Q 16 16 32 16"
+        fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 32 48 Q 48 48 48 32"
+        fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="5.5" fill="#FFFFFF"/>
+</svg>

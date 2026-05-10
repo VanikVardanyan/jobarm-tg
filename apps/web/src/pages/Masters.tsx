@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
-import { useT } from '@/lib/i18n'
+import { useT, categoryName } from '@/lib/i18n'
 import { getMasters, getCategories } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Star } from 'lucide-react'
@@ -48,7 +48,7 @@ export default function Masters() {
                   : 'border-secondary'
               )}
             >
-              {language === 'en' ? cat.nameEn : cat.nameRu}
+              {categoryName(cat, language)}
             </button>
           ))}
         </div>
@@ -78,7 +78,7 @@ export default function Masters() {
                   key={cat.id}
                   className="text-xs px-2 py-0.5 rounded-full bg-background border border-muted/30"
                 >
-                  {language === 'en' ? cat.nameEn : cat.nameRu}
+                  {categoryName(cat, language)}
                 </span>
               ))}
             </div>
