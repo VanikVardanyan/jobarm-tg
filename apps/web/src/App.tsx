@@ -42,14 +42,14 @@ export default function App() {
   }, [token, isOnboarded])
 
   // Deep-link from bot notification: ?startapp=job_<id> opens that job.
-  // Param is captured in main.tsx before the router boots.
+  // Param is captured in main.tsx before the router boots; we navigate as soon as routes are mounted.
   useEffect(() => {
-    if (!token || !isOnboarded) return
     const param = (window as { __startParam?: string | null }).__startParam
-    if (param?.startsWith('job_')) {
-      ;(window as { __startParam?: string | null }).__startParam = null
-      navigate(`/jobs/${param.slice(4)}`, { replace: true })
-    }
+    if (!token || !isOnboarded || !param?.startsWith('job_')) return
+    ;(window as { __startParam?: string | null }).__startParam = null
+    const jobId = param.slice(4)
+    // Use replaceState so React Router picks it up on next render too
+    navigate(`/jobs/${jobId}`, { replace: true })
   }, [token, isOnboarded])
 
   if (loading) {
@@ -72,12 +72,17 @@ export default function App() {
     return <Onboarding />
   }
 
+  // Deep-link target takes precedence over default home redirect
+  const startParam = (window as { __startParam?: string | null }).__startParam
+  const initialRedirect =
+    startParam?.startsWith('job_') ? `/jobs/${startParam.slice(4)}` : '/home'
+
   return (
     <>
       <Toast />
       <Routes>
         <Route element={<Layout />}>
-          <Route index element={<Navigate to="/home" replace />} />
+          <Route index element={<Navigate to={initialRedirect} replace />} />
           <Route path="/home" element={<Home />} />
           <Route path="/masters" element={<Masters />} />
           <Route path="/notifications" element={<Notifications />} />
@@ -87,7 +92,7 @@ export default function App() {
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/jobs/new" element={<CreateJob />} />
         <Route path="/profile/master" element={<MasterSettings />} />
-        <Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to={initialRedirect} replace />} />
       </Routes>
     </>
   )
