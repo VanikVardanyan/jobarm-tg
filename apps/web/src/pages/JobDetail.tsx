@@ -169,9 +169,20 @@ export default function JobDetail() {
           </p>
         </div>
 
-        {isCustomer && masterPhone && (
-          <div className="p-3 bg-green-50 rounded-xl text-sm">
-            Телефон мастера: <span className="font-medium">{masterPhone}</span>
+        {((isCustomer && job.masterPhone) || (isMaster && job.customerPhone)) && (
+          <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-2">
+            <p className="text-xs text-muted uppercase tracking-wide">
+              {isCustomer ? 'Мастер' : 'Заказчик'}
+            </p>
+            <p className="font-semibold">
+              {isCustomer ? job.masterName : job.customerName}
+            </p>
+            <a
+              href={`tel:${isCustomer ? job.masterPhone : job.customerPhone}`}
+              className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium"
+            >
+              📞 {isCustomer ? job.masterPhone : job.customerPhone}
+            </a>
           </div>
         )}
 

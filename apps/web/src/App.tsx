@@ -28,10 +28,15 @@ export default function App() {
       .finally(() => setLoading(false))
   }, [])
 
-  // Deep-link from bot notification: ?startapp=job_<id> opens that job
+  // Deep-link from bot notification: startapp=job_<id> opens that job.
+  // Telegram passes it via initDataUnsafe.start_param (direct link) or as ?tgWebAppStartParam / ?startapp= in URL (web_app button).
   useEffect(() => {
     if (!token || !isOnboarded) return
-    const param = window.Telegram?.WebApp?.initDataUnsafe?.start_param
+    const url = new URL(window.location.href)
+    const param =
+      window.Telegram?.WebApp?.initDataUnsafe?.start_param ||
+      url.searchParams.get('tgWebAppStartParam') ||
+      url.searchParams.get('startapp')
     if (param?.startsWith('job_')) {
       navigate(`/jobs/${param.slice(4)}`, { replace: true })
     }

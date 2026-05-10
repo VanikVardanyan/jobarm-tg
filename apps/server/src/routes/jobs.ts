@@ -56,16 +56,27 @@ export default async function jobsRoutes(app: FastifyInstance) {
       const { userId } = request.user
       const job = await db.job.findUniqueOrThrow({
         where: { id: request.params.id },
-        include: { ...jobInclude, customer: true },
+        include: { ...jobInclude, customer: true, selectedMaster: true },
       })
       const myApplication = await db.application.findFirst({
         where: { jobId: job.id, masterId: userId },
         select: { id: true },
       })
+
+      // Reveal phones only after a master is selected, and only to the two parties involved
+      const isCustomer = job.customerId === userId
+      const isSelectedMaster = job.selectedMasterId === userId
+      const masterPhone = isCustomer && job.selectedMaster ? job.selectedMaster.phone : null
+      const customerPhone = isSelectedMaster ? job.customer.phone : null
+
       return {
         ...job,
         applicationCount: job._count.applications,
         hasApplied: !!myApplication,
+        masterPhone,
+        customerPhone,
+        masterName: job.selectedMaster?.name ?? null,
+        customerName: job.customer.name,
       }
     }
   )
