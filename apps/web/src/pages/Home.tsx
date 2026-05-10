@@ -147,7 +147,7 @@ function FeedTab() {
       )}
       {isLoading && <div className="text-center text-muted py-8">...</div>}
       {!isLoading && feed.length === 0 && (
-        <p className="text-center text-muted py-8">{t.home.noFeed}</p>
+        <p className="text-center text-muted py-8">{t.masters.nothingHere}</p>
       )}
       <div className="flex flex-col gap-3">
         {feed.map((job) => (

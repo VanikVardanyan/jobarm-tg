@@ -72,6 +72,7 @@ const ru = {
     rating: "Рейтинг",
     reviews: "отзывов",
     noReviews: "Нет отзывов",
+    nothingHere: "Пока тут ничего нет",
   },
   profile: {
     title: "Профиль",
@@ -175,6 +176,7 @@ const hy: Strings = {
     rating: "Վարկանիշ",
     reviews: "կարծիք",
     noReviews: "Կարծիքներ չկան",
+    nothingHere: "Այստեղ դեռ ոչինչ չկա",
   },
   profile: {
     title: "Պրոֆիլ",
@@ -276,6 +278,7 @@ const en: Strings = {
     rating: "Rating",
     reviews: "reviews",
     noReviews: "No reviews",
+    nothingHere: "Nothing here yet",
   },
   profile: {
     title: "Profile",

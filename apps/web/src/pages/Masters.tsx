@@ -56,6 +56,9 @@ export default function Masters() {
 
       <div className="p-4 flex flex-col gap-3">
         {isLoading && <div className="text-center text-muted py-8">...</div>}
+        {!isLoading && masters.length === 0 && (
+          <p className="text-center text-muted py-8">{t.masters.nothingHere}</p>
+        )}
         {masters.map((master) => (
           <button
             key={master.id}
