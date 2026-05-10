@@ -12,6 +12,7 @@ import Onboarding from '@/pages/Onboarding'
 import MasterProfile from '@/pages/MasterProfile'
 import JobDetail from '@/pages/JobDetail'
 import CreateJob from '@/pages/CreateJob'
+import MasterSettings from '@/pages/MasterSettings'
 
 export default function App() {
   const { token, isOnboarded, language, setToken } = useStore()
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/masters/:id" element={<MasterProfile />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/jobs/new" element={<CreateJob />} />
+        <Route path="/profile/master" element={<MasterSettings />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </>

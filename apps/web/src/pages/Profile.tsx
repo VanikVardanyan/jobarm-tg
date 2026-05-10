@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Sun, Moon, Smartphone } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Sun, Moon, Smartphone, ChevronRight } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
-import { getMe, putMe, postMeMaster, putMeCategories, getCategories } from '@/lib/api'
+import { getMe, putMe, postMeMaster, getCategories } from '@/lib/api'
 import { useToast } from '@/components/Toast'
 import { cn } from '@/lib/utils'
 
 export default function Profile() {
   const t = useT()
+  const navigate = useNavigate()
   const qc = useQueryClient()
   const showToast = useToast((s) => s.show)
   const { activeRole, isMaster, language, themeMode, setActiveRole, setLanguage, setThemeMode, setIsMaster } = useStore()
@@ -30,10 +32,7 @@ export default function Profile() {
   }, [me])
 
   const saveMut = useMutation({
-    mutationFn: async () => {
-      await putMe({ name, phone, language })
-      if (isMaster) await putMeCategories(selectedCats)
-    },
+    mutationFn: () => putMe({ name, phone, language }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['me'] })
       showToast(t.profile.saved, 'success')
@@ -142,25 +141,13 @@ export default function Profile() {
       </div>
 
       {isMaster && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted">{t.onboarding.selectCategories}</p>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => toggleCat(cat.id)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full border text-sm transition-colors',
-                  selectedCats.includes(cat.id)
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-secondary'
-                )}
-              >
-                {categoryName(cat, language)}
-              </button>
-            ))}
-          </div>
-        </div>
+        <button
+          onClick={() => navigate('/profile/master')}
+          className="flex items-center justify-between w-full p-4 rounded-xl bg-secondary"
+        >
+          <span className="text-sm font-medium">{t.profile.masterSettings}</span>
+          <ChevronRight className="w-5 h-5 text-muted" />
+        </button>
       )}
 
       {!isMaster && !showMasterForm && (
