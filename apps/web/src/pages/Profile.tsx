@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getMe, putMe, postMeMaster, getCategories, uploadAvatar } from '@/lib/api'
+import { fileToJpeg } from '@/lib/image'
 import { useToast } from '@/components/Toast'
 import { Avatar } from '@/components/Avatar'
 import { cn } from '@/lib/utils'
@@ -54,7 +55,7 @@ export default function Profile() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const avatarMut = useMutation({
-    mutationFn: (file: File) => uploadAvatar(file),
+    mutationFn: (blob: Blob) => uploadAvatar(blob),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['me'] })
       showToast(t.profile.saved, 'success')
@@ -62,15 +63,20 @@ export default function Profile() {
     onError: () => showToast(t.errors.generic, 'error'),
   })
 
-  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    e.target.value = ''
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      showToast(language === 'hy' ? 'Չափը >5ՄԲ' : language === 'en' ? 'Max 5MB' : 'Не больше 5МБ', 'error')
+    if (file.size > 20 * 1024 * 1024) {
+      showToast(language === 'hy' ? 'Նկարը շատ մեծ է' : language === 'en' ? 'Image too large' : 'Слишком большая картинка', 'error')
       return
     }
-    avatarMut.mutate(file)
-    e.target.value = ''
+    try {
+      const jpeg = await fileToJpeg(file, 1024)
+      avatarMut.mutate(jpeg)
+    } catch {
+      showToast(language === 'hy' ? 'Չհաջողվեց բեռնել նկարը' : language === 'en' ? 'Cannot read image' : 'Не удалось прочесть картинку', 'error')
+    }
   }
 
   const toggleCat = (id: string) =>
@@ -99,7 +105,7 @@ export default function Profile() {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           className="hidden"
           onChange={onPickFile}
         />

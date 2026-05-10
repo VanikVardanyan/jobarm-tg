@@ -22,9 +22,9 @@ export const postMeMaster = (categoryIds: string[]) =>
   client.post<UserProfile>('/me/master', { categoryIds }).then((r) => r.data)
 export const putMeCategories = (categoryIds: string[]) =>
   client.put('/me/categories', { categoryIds }).then((r) => r.data)
-export const uploadAvatar = (file: File) => {
+export const uploadAvatar = (blob: Blob, filename = 'avatar.jpg') => {
   const fd = new FormData()
-  fd.append('file', file)
+  fd.append('file', blob, filename)
   return client
     .post<{ avatarUrl: string }>('/me/avatar', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
