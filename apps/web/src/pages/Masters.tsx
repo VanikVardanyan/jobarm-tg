@@ -64,7 +64,7 @@ export default function Masters() {
           >
             <div className="flex items-center justify-between">
               <span className="font-medium">{master.name}</span>
-              {master.rating !== null && (
+              {typeof master.rating === 'number' && (
                 <div className="flex items-center gap-1 text-sm">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span>{master.rating.toFixed(1)}</span>

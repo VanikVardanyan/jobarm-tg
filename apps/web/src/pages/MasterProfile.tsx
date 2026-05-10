@@ -52,7 +52,7 @@ export default function MasterProfile() {
       </header>
 
       <div className="flex-1 p-4 flex flex-col gap-6">
-        {master.rating !== null ? (
+        {typeof master.rating === 'number' ? (
           <div className="flex items-center gap-3">
             <StarDisplay value={master.rating} />
             <span className="font-semibold">{master.rating.toFixed(1)}</span>

@@ -260,9 +260,9 @@ export default function JobDetail() {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium">{app.master.name}</p>
-                    {app.master.rating !== null ? (
+                    {typeof app.master.rating === 'number' ? (
                       <p className="text-xs text-muted mt-0.5">
-                        ⭐ {app.master.rating.toFixed(1)} · {app.master.reviewCount} {t.masters.reviews}
+                        ⭐ {app.master.rating.toFixed(1)} · {app.master.reviewCount ?? 0} {t.masters.reviews}
                       </p>
                     ) : (
                       <p className="text-xs text-muted mt-0.5">{t.masters.noReviews}</p>
