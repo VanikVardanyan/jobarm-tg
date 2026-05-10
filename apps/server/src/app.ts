@@ -9,6 +9,7 @@ import jobsRoutes from './routes/jobs.js'
 import applicationsRoutes from './routes/applications.js'
 import reviewsRoutes from './routes/reviews.js'
 import mastersRoutes from './routes/masters.js'
+import notificationsRoutes from './routes/notifications.js'
 
 export function buildApp() {
   const app = Fastify({ logger: true })
@@ -24,6 +25,7 @@ export function buildApp() {
   app.register(applicationsRoutes, { prefix: '/api' })
   app.register(reviewsRoutes, { prefix: '/api' })
   app.register(mastersRoutes, { prefix: '/api' })
+  app.register(notificationsRoutes, { prefix: '/api' })
 
   app.get('/health', async () => ({ ok: true }))
 

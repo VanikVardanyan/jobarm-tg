@@ -7,7 +7,16 @@ import { watchTheme } from './lib/theme'
 import './index.css'
 
 const qc = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5_000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      refetchInterval: 15_000,
+      refetchIntervalInBackground: false,
+    },
+  },
 })
 
 const tg = window.Telegram?.WebApp

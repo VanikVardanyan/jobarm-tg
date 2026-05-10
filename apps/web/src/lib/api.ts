@@ -23,6 +23,25 @@ export const postMeMaster = (categoryIds: string[]) =>
 export const putMeCategories = (categoryIds: string[]) =>
   client.put('/me/categories', { categoryIds }).then((r) => r.data)
 
+// Notifications
+export interface NotificationItem {
+  id: string
+  kind: string
+  title: string
+  body: string
+  jobId: string | null
+  read: boolean
+  createdAt: string
+}
+export const getNotifications = () =>
+  client
+    .get<{ items: NotificationItem[]; unread: number }>('/notifications')
+    .then((r) => r.data)
+export const markNotificationRead = (id: string) =>
+  client.post(`/notifications/${id}/read`).then((r) => r.data)
+export const markAllNotificationsRead = () =>
+  client.post('/notifications/read-all').then((r) => r.data)
+
 // Categories
 export const getCategories = () => client.get<Category[]>('/categories').then((r) => r.data)
 

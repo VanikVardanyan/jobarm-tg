@@ -12,15 +12,35 @@ export function initNotifications(bot: Telegraf) {
 async function send(
   telegramId: string,
   text: string,
-  opts: { jobId?: string; buttonLabel?: string } = {}
+  opts: {
+    jobId?: string
+    buttonLabel?: string
+    kind?: string
+    title?: string
+    body?: string
+  } = {}
 ): Promise<void> {
   if (!_bot) return
   try {
     const user = await db.user.findUnique({
       where: { telegramId },
-      select: { chatId: true },
+      select: { id: true, chatId: true },
     })
-    if (!user?.chatId) return
+    if (!user) return
+
+    if (opts.kind && opts.title) {
+      await db.notification.create({
+        data: {
+          userId: user.id,
+          kind: opts.kind,
+          title: opts.title,
+          body: opts.body ?? text.slice(0, 200),
+          jobId: opts.jobId ?? null,
+        },
+      })
+    }
+
+    if (!user.chatId) return
     const url = opts.jobId
       ? `${config.MINI_APP_URL}?startapp=job_${opts.jobId}`
       : config.MINI_APP_URL
@@ -68,7 +88,7 @@ export async function notifyMastersNewJob(jobId: string): Promise<void> {
           dateFrom,
           dateTo,
         })
-        return send(master.telegramId, text, { jobId: job.id })
+        return send(master.telegramId, text, { jobId: job.id, kind: 'new_job', title: 'Նոր առաջադրանք', body: `${category} · ${job.budget} ֏` })
       })
     )
   } catch {
@@ -96,7 +116,7 @@ export async function notifyCustomerNewApplication(jobId: string, masterId: stri
       masterName: master.name,
       jobDescription: job.description.slice(0, 100),
     })
-    await send(customer.telegramId, text, { jobId })
+    await send(customer.telegramId, text, { jobId, kind: 'new_application', title: 'Նոր արձագանք', body: master.name })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -115,7 +135,7 @@ export async function notifyMasterSelected(jobId: string, masterId: string): Pro
     const text = buildMessage(lang, 'masterSelected', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(master.telegramId, text, { jobId })
+    await send(master.telegramId, text, { jobId, kind: 'master_selected', title: 'Ձեզ ընտրել են', body: job.description.slice(0, 100) })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -140,7 +160,7 @@ export async function notifyMasterJobDone(jobId: string): Promise<void> {
     const text = buildMessage(lang, 'masterMarkedDone', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(customer.telegramId, text, { jobId })
+    await send(customer.telegramId, text, { jobId, kind: 'master_marked_done', title: 'Վարպետը ավարտել է', body: job.description.slice(0, 100) })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -159,7 +179,7 @@ export async function notifyJobCompleted(jobId: string, masterId: string): Promi
     const text = buildMessage(lang, 'customerConfirmed', {
       jobDescription: job.description.slice(0, 100),
     })
-    await send(master.telegramId, text, { jobId })
+    await send(master.telegramId, text, { jobId, kind: 'job_completed', title: 'Պատվերը ավարտված է', body: job.description.slice(0, 100) })
   } catch {
     // Fire-and-forget: silently ignore errors
   }
@@ -183,7 +203,7 @@ export async function notifyMasterNewReview(
       rating,
       comment: comment ?? '',
     })
-    await send(master.telegramId, text)
+    await send(master.telegramId, text, { kind: 'new_review', title: 'Նոր կարծիք', body: `${rating}/5${comment ? `: ${comment}` : ''}` })
   } catch {
     // Fire-and-forget: silently ignore errors
   }

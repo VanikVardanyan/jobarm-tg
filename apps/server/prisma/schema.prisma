@@ -25,8 +25,24 @@ model User {
   reviewsGiven    Review[]       @relation("CustomerReviews")
   reviewsReceived Review[]       @relation("MasterReviews")
   categories      UserCategory[]
+  notifications   Notification[]
 
   @@map("users")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  kind      String
+  title     String
+  body      String
+  jobId     String?  @map("job_id")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
 
 model Category {
