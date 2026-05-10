@@ -12,7 +12,7 @@ client.interceptors.request.use((cfg) => {
 
 // Auth
 export const postTelegramAuth = (initData: string, language: string) =>
-  client.post<{ token: string; isNew: boolean }>('/telegram', { initData, language }).then((r) => r.data)
+  client.post<{ token: string; isNew: boolean }>('/auth/telegram', { initData, language }).then((r) => r.data)
 
 // Me
 export const getMe = () => client.get<UserProfile>('/me').then((r) => r.data)
