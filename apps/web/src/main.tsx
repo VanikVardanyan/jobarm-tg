@@ -23,6 +23,18 @@ setVh()
 tg?.onEvent('viewportChanged', setVh)
 window.addEventListener('resize', setVh)
 
+const applySafeArea = () => {
+  const inset = (tg as unknown as { safeAreaInset?: { top: number; bottom: number } } | undefined)
+    ?.safeAreaInset
+  if (inset) {
+    document.documentElement.style.setProperty('--safe-top', `${inset.top}px`)
+    document.documentElement.style.setProperty('--safe-bottom', `${inset.bottom}px`)
+  }
+}
+applySafeArea()
+tg?.onEvent('safeAreaChanged', applySafeArea)
+tg?.onEvent('contentSafeAreaChanged', applySafeArea)
+
 watchTheme()
 
 createRoot(document.getElementById('root')!).render(
