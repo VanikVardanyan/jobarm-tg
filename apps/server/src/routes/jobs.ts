@@ -21,18 +21,27 @@ export default async function jobsRoutes(app: FastifyInstance) {
   })
 
   // Master: list jobs feed (by their categories)
-  app.get('/jobs/feed', { preHandler: [app.authenticate] }, async (request) => {
-    const { userId } = request.user
-    const masterCats = await db.userCategory.findMany({ where: { userId } })
-    const categoryIds = masterCats.map((mc) => mc.categoryId)
+  app.get<{ Querystring: { categoryId?: string } }>(
+    '/jobs/feed',
+    { preHandler: [app.authenticate] },
+    async (request) => {
+      const { userId } = request.user
+      const masterCats = await db.userCategory.findMany({ where: { userId } })
+      const categoryIds = masterCats.map((mc) => mc.categoryId)
 
-    const jobs = await db.job.findMany({
-      where: { categoryId: { in: categoryIds }, status: 'new' },
-      include: jobInclude,
-      orderBy: { createdAt: 'desc' },
-    })
-    return jobs.map((j) => ({ ...j, applicationCount: j._count.applications }))
-  })
+      const filterCat = request.query.categoryId
+      const finalIds = filterCat
+        ? categoryIds.filter((id) => id === filterCat)
+        : categoryIds
+
+      const jobs = await db.job.findMany({
+        where: { categoryId: { in: finalIds }, status: 'new' },
+        include: jobInclude,
+        orderBy: { createdAt: 'desc' },
+      })
+      return jobs.map((j) => ({ ...j, applicationCount: j._count.applications }))
+    }
+  )
 
   // Master: list assigned jobs (in_progress or pending_confirmation)
   app.get('/jobs/assigned', { preHandler: [app.authenticate] }, async (request) => {

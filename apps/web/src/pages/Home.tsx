@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
-import { getMyJobs, getJobFeed, getAssignedJobs } from '@/lib/api'
+import { getMyJobs, getJobFeed, getAssignedJobs, getMe, getCategories } from '@/lib/api'
 import { formatDate, formatBudget, cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import type { Job } from '@jobbarm/shared'
@@ -92,12 +92,59 @@ function OrdersTab() {
 
 function FeedTab() {
   const t = useT()
-  const { data: feed = [], isLoading } = useQuery({
-    queryKey: ['jobs', 'feed'],
-    queryFn: getJobFeed,
+  const lang = useStore((s) => s.language)
+  const [categoryId, setCategoryId] = useState<string | undefined>()
+  const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
+  const { data: allCategories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
   })
+  const myCategoryIds = new Set(me?.categories.map((c) => c.id) ?? [])
+  // Show only categories the master is subscribed to, with "Other" pinned to the end
+  const myCategories = allCategories
+    .filter((c) => myCategoryIds.has(c.id))
+    .sort((a, b) => {
+      if (a.nameEn === 'Other') return 1
+      if (b.nameEn === 'Other') return -1
+      return 0
+    })
+
+  const { data: feed = [], isLoading } = useQuery({
+    queryKey: ['jobs', 'feed', categoryId ?? 'all'],
+    queryFn: () => getJobFeed(categoryId),
+  })
+
   return (
     <>
+      {myCategories.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            onClick={() => setCategoryId(undefined)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0 border transition-colors',
+              !categoryId
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-secondary'
+            )}
+          >
+            {t.masters.all}
+          </button>
+          {myCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryId(cat.id)}
+              className={cn(
+                'px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0 border transition-colors',
+                categoryId === cat.id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-secondary'
+              )}
+            >
+              {categoryName(cat, lang)}
+            </button>
+          ))}
+        </div>
+      )}
       {isLoading && <div className="text-center text-muted py-8">...</div>}
       {!isLoading && feed.length === 0 && (
         <p className="text-center text-muted py-8">{t.home.noFeed}</p>

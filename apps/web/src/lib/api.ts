@@ -47,7 +47,10 @@ export const getCategories = () => client.get<Category[]>('/categories').then((r
 
 // Jobs
 export const getMyJobs = () => client.get<Job[]>('/jobs/my').then((r) => r.data)
-export const getJobFeed = () => client.get<Job[]>('/jobs/feed').then((r) => r.data)
+export const getJobFeed = (categoryId?: string) =>
+  client
+    .get<Job[]>('/jobs/feed', { params: categoryId ? { categoryId } : {} })
+    .then((r) => r.data)
 export const getAssignedJobs = () => client.get<Job[]>('/jobs/assigned').then((r) => r.data)
 export const getJob = (id: string) =>
   client
