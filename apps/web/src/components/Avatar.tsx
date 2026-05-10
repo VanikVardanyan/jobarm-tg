@@ -41,16 +41,7 @@ interface Props {
 }
 
 export function Avatar({ url, name, size = 40, className }: Props) {
-  const trimmed = name.trim()
-  const initials = trimmed
-    ? trimmed
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() ?? '')
-        .join('')
-    : ''
-
-  const style = { width: size, height: size, fontSize: size * 0.4 }
+  const style = { width: size, height: size }
 
   if (url) {
     return (
@@ -63,30 +54,15 @@ export function Avatar({ url, name, size = 40, className }: Props) {
     )
   }
 
-  if (!initials) {
-    return (
-      <div
-        style={style}
-        className={cn(
-          'rounded-full flex items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 text-zinc-500 dark:text-zinc-300 flex-shrink-0',
-          className
-        )}
-      >
-        <PersonGlyph size={size} />
-      </div>
-    )
-  }
-
   return (
     <div
       style={style}
       className={cn(
-        'rounded-full flex items-center justify-center font-semibold text-white flex-shrink-0',
-        colorFor(trimmed),
+        'rounded-full flex items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 text-zinc-500 dark:text-zinc-300 flex-shrink-0',
         className
       )}
     >
-      {initials}
+      <PersonGlyph size={size} />
     </div>
   )
 }
