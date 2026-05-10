@@ -63,11 +63,13 @@ export default async function jobsRoutes(app: FastifyInstance) {
         select: { id: true },
       })
 
-      // Reveal phones only after a master is selected, and only to the two parties involved
+      // Reveal contacts only after a master is selected, and only to the two parties involved
       const isCustomer = job.customerId === userId
       const isSelectedMaster = job.selectedMasterId === userId
       const masterPhone = isCustomer && job.selectedMaster ? job.selectedMaster.phone : null
       const customerPhone = isSelectedMaster ? job.customer.phone : null
+      const masterTgId = isCustomer && job.selectedMaster ? job.selectedMaster.telegramId : null
+      const customerTgId = isSelectedMaster ? job.customer.telegramId : null
 
       return {
         ...job,
@@ -75,6 +77,8 @@ export default async function jobsRoutes(app: FastifyInstance) {
         hasApplied: !!myApplication,
         masterPhone,
         customerPhone,
+        masterTgId,
+        customerTgId,
         masterName: job.selectedMaster?.name ?? null,
         customerName: job.customer.name,
       }

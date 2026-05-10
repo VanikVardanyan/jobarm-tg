@@ -38,6 +38,8 @@ export const getJob = (id: string) =>
         hasApplied: boolean
         masterPhone: string | null
         customerPhone: string | null
+        masterTgId: string | null
+        customerTgId: string | null
         masterName: string | null
         customerName: string
       }

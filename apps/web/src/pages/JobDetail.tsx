@@ -169,22 +169,44 @@ export default function JobDetail() {
           </p>
         </div>
 
-        {((isCustomer && job.masterPhone) || (isMaster && job.customerPhone)) && (
-          <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-2">
-            <p className="text-xs text-muted uppercase tracking-wide">
-              {isCustomer ? 'Мастер' : 'Заказчик'}
-            </p>
-            <p className="font-semibold">
-              {isCustomer ? job.masterName : job.customerName}
-            </p>
-            <a
-              href={`tel:${isCustomer ? job.masterPhone : job.customerPhone}`}
-              className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium"
-            >
-              📞 {isCustomer ? job.masterPhone : job.customerPhone}
-            </a>
-          </div>
-        )}
+        {((isCustomer && job.masterPhone) || (isMaster && job.customerPhone)) && (() => {
+          const phone = isCustomer ? job.masterPhone! : job.customerPhone!
+          const name = isCustomer ? job.masterName : job.customerName
+          const tgId = isCustomer ? job.masterTgId : job.customerTgId
+          const tgLink = tgId ? `tg://user?id=${tgId}` : null
+          const openTg = () => {
+            if (!tgLink) return
+            const tg = window.Telegram?.WebApp as unknown as {
+              openTelegramLink?: (u: string) => void
+            }
+            if (tg?.openTelegramLink) tg.openTelegramLink(tgLink)
+            else window.open(tgLink, '_blank')
+          }
+          return (
+            <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-3">
+              <div>
+                <p className="text-xs text-muted uppercase tracking-wide">
+                  {isCustomer ? 'Мастер' : 'Заказчик'}
+                </p>
+                <p className="font-semibold mt-1">{name}</p>
+              </div>
+              <a
+                href={`tel:${phone}`}
+                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium"
+              >
+                📞 {phone}
+              </a>
+              {tgLink && (
+                <button
+                  onClick={openTg}
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg border border-primary text-primary font-medium"
+                >
+                  💬 Написать в Telegram
+                </button>
+              )}
+            </div>
+          )
+        })()}
 
         {(isCustomer || isMaster) &&
           (job.status === 'in_progress' || job.status === 'pending_confirmation') &&

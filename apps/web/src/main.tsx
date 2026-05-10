@@ -14,6 +14,27 @@ const tg = window.Telegram?.WebApp
 tg?.ready()
 tg?.expand()
 
+// Capture deep-link param synchronously before router boots — Telegram may put it in:
+// - initDataUnsafe.start_param (direct link)
+// - ?startapp= or ?tgWebAppStartParam= in URL
+// - #tgWebAppStartParam= in hash
+function readStartParam(): string | null {
+  const fromInit = tg?.initDataUnsafe?.start_param
+  if (fromInit) return fromInit
+  const url = new URL(window.location.href)
+  const fromQuery =
+    url.searchParams.get('startapp') ||
+    url.searchParams.get('tgWebAppStartParam')
+  if (fromQuery) return fromQuery
+  const hash = window.location.hash.replace(/^#/, '')
+  if (hash) {
+    const fromHash = new URLSearchParams(hash).get('tgWebAppStartParam')
+    if (fromHash) return fromHash
+  }
+  return null
+}
+;(window as { __startParam?: string | null }).__startParam = readStartParam()
+
 watchTheme()
 
 createRoot(document.getElementById('root')!).render(
