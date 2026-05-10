@@ -53,7 +53,7 @@ export default function JobDetail() {
   const [reviewSent, setReviewSent] = useState(false)
   const [masterPhone, setMasterPhone] = useState<string | null>(null)
 
-  const { data: job, isLoading } = useQuery({
+  const { data: job, isLoading, error } = useQuery({
     queryKey: ['job', id],
     queryFn: () => getJob(id!),
     enabled: !!id,
@@ -127,10 +127,26 @@ export default function JobDetail() {
     if (window.confirm(confirmText)) deleteMut.mutate()
   }
 
-  if (isLoading || !job) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (error || !job) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 gap-4 bg-background text-center">
+        <p className="text-sm text-muted">
+          {error ? 'Не удалось загрузить заказ' : 'Заказ не найден'}
+        </p>
+        <button
+          onClick={() => navigate('/home')}
+          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium"
+        >
+          На главную
+        </button>
       </div>
     )
   }
@@ -138,7 +154,7 @@ export default function JobDetail() {
   const alreadyApplied = job.hasApplied || applications.some((a) => a.master.id === userId)
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background">
       <header className="flex items-center gap-3 p-4 border-b border-secondary">
         <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/home'))}>
           <ArrowLeft className="w-5 h-5" />
