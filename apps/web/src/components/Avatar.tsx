@@ -19,6 +19,20 @@ function colorFor(name: string): string {
   return COLORS[h % COLORS.length]
 }
 
+function PersonGlyph({ size }: { size: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size * 0.7}
+      height={size * 0.7}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 12.6c2.43 0 4.4-1.97 4.4-4.4S14.43 3.8 12 3.8 7.6 5.77 7.6 8.2s1.97 4.4 4.4 4.4Zm0 2.2c-3.13 0-9.4 1.57-9.4 4.7v1.7c0 .39.31.7.7.7h17.4c.39 0 .7-.31.7-.7v-1.7c0-3.13-6.27-4.7-9.4-4.7Z" />
+    </svg>
+  )
+}
+
 interface Props {
   url?: string | null
   name: string
@@ -27,12 +41,14 @@ interface Props {
 }
 
 export function Avatar({ url, name, size = 40, className }: Props) {
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('')
+  const trimmed = name.trim()
+  const initials = trimmed
+    ? trimmed
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? '')
+        .join('')
+    : ''
 
   const style = { width: size, height: size, fontSize: size * 0.4 }
 
@@ -42,8 +58,22 @@ export function Avatar({ url, name, size = 40, className }: Props) {
         src={url}
         alt={name}
         style={style}
-        className={cn('rounded-full object-cover flex-shrink-0', className)}
+        className={cn('rounded-full object-cover flex-shrink-0 bg-secondary', className)}
       />
+    )
+  }
+
+  if (!initials) {
+    return (
+      <div
+        style={style}
+        className={cn(
+          'rounded-full flex items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 text-zinc-500 dark:text-zinc-300 flex-shrink-0',
+          className
+        )}
+      >
+        <PersonGlyph size={size} />
+      </div>
     )
   }
 
@@ -52,11 +82,11 @@ export function Avatar({ url, name, size = 40, className }: Props) {
       style={style}
       className={cn(
         'rounded-full flex items-center justify-center font-semibold text-white flex-shrink-0',
-        colorFor(name || '?'),
+        colorFor(trimmed),
         className
       )}
     >
-      {initials || '?'}
+      {initials}
     </div>
   )
 }
