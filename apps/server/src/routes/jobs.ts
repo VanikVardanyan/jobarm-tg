@@ -70,6 +70,9 @@ export default async function jobsRoutes(app: FastifyInstance) {
       const customerPhone = isSelectedMaster ? job.customer.phone : null
       const masterTgId = isCustomer && job.selectedMaster ? job.selectedMaster.telegramId : null
       const customerTgId = isSelectedMaster ? job.customer.telegramId : null
+      const masterUsername =
+        isCustomer && job.selectedMaster ? job.selectedMaster.username : null
+      const customerUsername = isSelectedMaster ? job.customer.username : null
 
       return {
         ...job,
@@ -79,6 +82,8 @@ export default async function jobsRoutes(app: FastifyInstance) {
         customerPhone,
         masterTgId,
         customerTgId,
+        masterUsername,
+        customerUsername,
         masterName: job.selectedMaster?.name ?? null,
         customerName: job.customer.name,
       }

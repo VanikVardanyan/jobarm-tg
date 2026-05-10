@@ -40,6 +40,8 @@ export const getJob = (id: string) =>
         customerPhone: string | null
         masterTgId: string | null
         customerTgId: string | null
+        masterUsername: string | null
+        customerUsername: string | null
         masterName: string | null
         customerName: string
       }

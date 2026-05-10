@@ -188,15 +188,15 @@ export default function JobDetail() {
         {((isCustomer && job.masterPhone) || (isMaster && job.customerPhone)) && (() => {
           const phone = isCustomer ? job.masterPhone! : job.customerPhone!
           const name = isCustomer ? job.masterName : job.customerName
-          const tgId = isCustomer ? job.masterTgId : job.customerTgId
-          const tgLink = tgId ? `tg://user?id=${tgId}` : null
+          const username = isCustomer ? job.masterUsername : job.customerUsername
+          const tgUrl = username ? `https://t.me/${username}` : null
           const openTg = () => {
-            if (!tgLink) return
+            if (!tgUrl) return
             const tg = window.Telegram?.WebApp as unknown as {
               openTelegramLink?: (u: string) => void
             }
-            if (tg?.openTelegramLink) tg.openTelegramLink(tgLink)
-            else window.open(tgLink, '_blank')
+            if (tg?.openTelegramLink) tg.openTelegramLink(tgUrl)
+            else window.open(tgUrl, '_blank')
           }
           return (
             <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-3">
@@ -212,7 +212,7 @@ export default function JobDetail() {
               >
                 📞 {phone}
               </a>
-              {tgLink && (
+              {tgUrl && (
                 <button
                   onClick={openTg}
                   className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg border border-primary text-primary font-medium"

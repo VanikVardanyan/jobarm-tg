@@ -16,7 +16,7 @@ export default async function authRoutes(app: FastifyInstance) {
     const data = validateTelegramInitData(initData, config.BOT_TOKEN)
     if (!data) return reply.status(401).send({ error: 'Invalid initData' })
 
-    let tgUser: { id?: number; first_name?: string; last_name?: string } = {}
+    let tgUser: { id?: number; first_name?: string; last_name?: string; username?: string } = {}
     try {
       tgUser = JSON.parse(data['user'] ?? '{}') as typeof tgUser
     } catch {
@@ -29,10 +29,11 @@ export default async function authRoutes(app: FastifyInstance) {
 
     const user = await db.user.upsert({
       where: { telegramId },
-      update: { chatId: telegramId },
+      update: { chatId: telegramId, username: tgUser.username ?? null },
       create: {
         telegramId,
         chatId: telegramId,
+        username: tgUser.username ?? null,
         name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
         language,
       },
