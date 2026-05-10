@@ -35,7 +35,7 @@ export default async function usersRoutes(app: FastifyInstance) {
     const schema = z.object({
       name: z.string().min(1).optional(),
       phone: z.string().min(5).optional(),
-      language: z.enum(['ru', 'en']).optional(),
+      language: z.enum(['hy', 'ru', 'en']).optional(),
     })
     const data = schema.parse(request.body)
     return db.user.update({ where: { id: userId }, data })

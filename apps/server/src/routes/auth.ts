@@ -6,7 +6,7 @@ import { config } from '../config.js'
 
 const bodySchema = z.object({
   initData: z.string().min(1),
-  language: z.enum(['ru', 'en']).default('ru'),
+  language: z.enum(['hy', 'ru', 'en']).default('hy'),
 })
 
 export default async function authRoutes(app: FastifyInstance) {
