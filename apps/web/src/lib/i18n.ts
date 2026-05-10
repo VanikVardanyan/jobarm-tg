@@ -285,25 +285,11 @@ export function useT() {
   return strings[language] ?? strings.hy;
 }
 
-const categoryHy: Record<string, string> = {
-  'Plumbing': 'Սանտեխնիկա',
-  'Electrician': 'Էլեկտրիկ',
-  'Cleaning': 'Մաքրություն',
-  'Moving': 'Բեռնակիր',
-  'Appliance Repair': 'Տեխնիկայի վերանորոգում',
-  'Construction': 'Շինարարություն',
-  'Painting': 'Ներկարարություն',
-  'Tutor': 'Կրկնուսույց',
-  'Courier': 'Սուրհանդակ',
-  'Driver': 'Վարորդ',
-  'Realtor': 'Անշարժ գույքի գործակալ',
-  'Auto Chassis': 'Խոդովիկ',
-  'Auto Body Painting': 'Ավտո ներկարարություն',
-  'Other': 'Այլ',
-};
-
-export function categoryName(cat: { nameRu: string; nameEn: string }, language: string): string {
-  if (language === 'hy') return categoryHy[cat.nameEn] ?? cat.nameRu;
+export function categoryName(
+  cat: { nameRu: string; nameEn: string; nameHy?: string },
+  language: string
+): string {
+  if (language === 'hy') return cat.nameHy || cat.nameRu;
   if (language === 'en') return cat.nameEn;
   return cat.nameRu;
 }

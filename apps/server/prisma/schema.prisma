@@ -32,6 +32,7 @@ model Category {
   id     String         @id @default(uuid())
   nameRu String         @map("name_ru")
   nameEn String         @unique @map("name_en")
+  nameHy String         @default("") @map("name_hy")
   jobs   Job[]
   users  UserCategory[]
 

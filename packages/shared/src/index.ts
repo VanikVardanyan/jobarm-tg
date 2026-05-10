@@ -6,6 +6,7 @@ export interface Category {
   id: string
   nameRu: string
   nameEn: string
+  nameHy: string
 }
 
 export interface UserProfile {
