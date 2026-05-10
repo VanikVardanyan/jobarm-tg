@@ -31,9 +31,11 @@ function JobCard({ job }: { job: Job }) {
       onClick={() => navigate(`/jobs/${job.id}`)}
       className="w-full text-left p-4 rounded-xl bg-secondary flex flex-col gap-2"
     >
-      <div className="flex items-center justify-between">
-        <span className="font-medium text-sm line-clamp-1">{categoryName(job.category, lang)}</span>
-        <StatusBadge status={job.status} />
+      <div className="flex items-center gap-2">
+        <span className="flex-1 min-w-0 font-medium text-sm line-clamp-1">{categoryName(job.category, lang)}</span>
+        <span className="flex-shrink-0">
+          <StatusBadge status={job.status} />
+        </span>
       </div>
       <p className="text-sm text-muted line-clamp-2">{job.description}</p>
       <div className="flex items-center justify-between text-xs text-muted">
