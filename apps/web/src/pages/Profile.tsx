@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Sun, Moon, Smartphone } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
@@ -117,18 +118,23 @@ export default function Profile() {
         <div className="flex flex-col gap-1">
           <label className="text-sm text-muted">{t.profile.theme}</label>
           <div className="flex gap-2">
-            {(['auto', 'light', 'dark'] as const).map((m) => (
+            {([
+              { mode: 'auto' as const, Icon: Smartphone, label: t.profile.themeAuto },
+              { mode: 'light' as const, Icon: Sun, label: t.profile.themeLight },
+              { mode: 'dark' as const, Icon: Moon, label: t.profile.themeDark },
+            ]).map(({ mode, Icon, label }) => (
               <button
-                key={m}
-                onClick={() => setThemeMode(m)}
+                key={mode}
+                onClick={() => setThemeMode(mode)}
+                aria-label={label}
                 className={cn(
-                  'flex-1 py-2 rounded-xl border text-sm font-medium transition-colors',
-                  themeMode === m
+                  'flex-1 flex items-center justify-center py-3 rounded-xl border transition-colors',
+                  themeMode === mode
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'border-secondary'
                 )}
               >
-                {m === 'auto' ? t.profile.themeAuto : m === 'light' ? t.profile.themeLight : t.profile.themeDark}
+                <Icon className="w-5 h-5" />
               </button>
             ))}
           </div>
