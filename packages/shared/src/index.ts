@@ -34,6 +34,8 @@ export interface Job {
   status: JobStatus
   applicationCount: number
   selectedMasterId: string | null
+  masterConfirmed: boolean
+  customerConfirmed: boolean
   createdAt: string
 }
 

@@ -95,7 +95,12 @@ export default function JobDetail() {
 
   const completeMut = useMutation({
     mutationFn: () => completeJob(id!),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['job', id] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['job', id] })
+      void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
+      void qc.invalidateQueries({ queryKey: ['jobs', 'assigned'] })
+    },
+    onError: () => showToast(t.errors.generic, 'error'),
   })
 
   const reviewMut = useMutation({
@@ -171,15 +176,26 @@ export default function JobDetail() {
         )}
 
         {(isCustomer || isMaster) &&
-          (job.status === 'in_progress' || job.status === 'pending_confirmation') && (
-            <button
-              onClick={() => completeMut.mutate()}
-              disabled={completeMut.isPending}
-              className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
-            >
-              {t.job.markDone}
-            </button>
-          )}
+          (job.status === 'in_progress' || job.status === 'pending_confirmation') &&
+          (() => {
+            const myConfirmed = isMaster ? job.masterConfirmed : job.customerConfirmed
+            if (myConfirmed) {
+              return (
+                <div className="w-full py-3 rounded-xl bg-secondary text-center text-sm text-muted">
+                  {isMaster ? t.job.waitingCustomer : t.job.waitingMaster}
+                </div>
+              )
+            }
+            return (
+              <button
+                onClick={() => completeMut.mutate()}
+                disabled={completeMut.isPending}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
+              >
+                {completeMut.isPending ? '...' : t.job.markDone}
+              </button>
+            )
+          })()}
 
         {isCustomer && job.status === 'new' && applications.length > 0 && (
           <div className="flex flex-col gap-3">
