@@ -23,17 +23,28 @@ setVh()
 tg?.onEvent('viewportChanged', setVh)
 window.addEventListener('resize', setVh)
 
+type Inset = { top: number; bottom: number; left?: number; right?: number }
+type ExtTg = {
+  safeAreaInset?: Inset
+  contentSafeAreaInset?: Inset
+  isFullscreen?: boolean
+}
+
 const applySafeArea = () => {
-  const inset = (tg as unknown as { safeAreaInset?: { top: number; bottom: number } } | undefined)
-    ?.safeAreaInset
-  if (inset) {
-    document.documentElement.style.setProperty('--safe-top', `${inset.top}px`)
-    document.documentElement.style.setProperty('--safe-bottom', `${inset.bottom}px`)
-  }
+  const ext = tg as unknown as ExtTg | undefined
+  const safe = ext?.safeAreaInset
+  const content = ext?.contentSafeAreaInset
+  const top = (safe?.top ?? 0) + (content?.top ?? 0)
+  const bottom = (safe?.bottom ?? 0) + (content?.bottom ?? 0)
+  // Always reserve at least 24px on top so the Telegram header / status bar doesn't overlap content
+  const minTop = ext?.isFullscreen ? 56 : 24
+  document.documentElement.style.setProperty('--safe-top', `${Math.max(top, minTop)}px`)
+  document.documentElement.style.setProperty('--safe-bottom', `${bottom}px`)
 }
 applySafeArea()
 tg?.onEvent('safeAreaChanged', applySafeArea)
 tg?.onEvent('contentSafeAreaChanged', applySafeArea)
+tg?.onEvent('fullscreenChanged', applySafeArea)
 
 watchTheme()
 
