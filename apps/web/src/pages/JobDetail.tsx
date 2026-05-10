@@ -236,18 +236,29 @@ export default function JobDetail() {
               {t.job.applications} ({applications.length})
             </h2>
             {applications.map((app) => (
-              <div key={app.id} className="p-3 bg-secondary rounded-xl flex flex-col gap-2">
-                <div className="flex items-center justify-between">
+              <div
+                key={app.id}
+                onClick={() => navigate(`/masters/${app.master.id}`)}
+                className="p-3 bg-secondary rounded-xl flex flex-col gap-2 cursor-pointer active:opacity-70"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium">{app.master.name}</p>
+                    {app.master.rating !== null ? (
+                      <p className="text-xs text-muted mt-0.5">
+                        ⭐ {app.master.rating.toFixed(1)} · {app.master.reviewCount} {t.masters.reviews}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted mt-0.5">{t.masters.noReviews}</p>
+                    )}
+                  </div>
                   <button
-                    onClick={() => navigate(`/masters/${app.master.id}`)}
-                    className="font-medium text-sm text-link"
-                  >
-                    {app.master.name}
-                  </button>
-                  <button
-                    onClick={() => selectMut.mutate(app.master.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      selectMut.mutate(app.master.id)
+                    }}
                     disabled={selectMut.isPending}
-                    className="px-3 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+                    className="flex-shrink-0 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
                   >
                     {t.job.selectMaster}
                   </button>
