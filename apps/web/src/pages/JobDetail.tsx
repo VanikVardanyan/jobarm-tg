@@ -117,7 +117,7 @@ export default function JobDetail() {
             {t.job.budget}: {formatBudget(job.budget)}
           </p>
           <p className="text-sm text-muted">
-            {t.job.dates}: {formatDate(job.dateFrom, language)} – {formatDate(job.dateTo, language)}
+            {t.job.dates}: {formatDate(job.dateFrom, language)}
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export default function JobDetail() {
               onChange={(e) => setReviewComment(e.target.value)}
               placeholder={t.job.reviewComment}
               rows={3}
-              className="w-full p-3 rounded-xl bg-background outline-none resize-none text-sm"
+              className="w-full p-3 rounded-xl bg-background outline-none resize-none text-base"
             />
             <button
               onClick={() => reviewMut.mutate()}
@@ -194,7 +194,7 @@ export default function JobDetail() {
               onChange={(e) => setApplyComment(e.target.value)}
               placeholder={t.job.commentPlaceholder}
               rows={3}
-              className="w-full p-3 rounded-xl bg-secondary outline-none resize-none text-sm"
+              className="w-full p-3 rounded-xl bg-secondary outline-none resize-none text-base"
             />
             <button
               onClick={() => applyMut.mutate()}

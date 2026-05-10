@@ -37,10 +37,8 @@ function JobCard({ job }: { job: Job }) {
       </div>
       <p className="text-sm text-muted line-clamp-2">{job.description}</p>
       <div className="flex items-center justify-between text-xs text-muted">
-        <span>{formatBudget(job.budget)}</span>
-        <span>
-          {formatDate(job.dateFrom, lang)} – {formatDate(job.dateTo, lang)}
-        </span>
+        <span className="font-medium text-primary">{formatBudget(job.budget)}</span>
+        <span>{formatDate(job.dateFrom, lang)}</span>
       </div>
     </button>
   )

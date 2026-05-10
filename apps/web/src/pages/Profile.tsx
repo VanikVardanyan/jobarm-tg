@@ -27,7 +27,10 @@ export default function Profile() {
   }, [me])
 
   const saveMut = useMutation({
-    mutationFn: () => putMe({ name, phone, language }),
+    mutationFn: async () => {
+      await putMe({ name, phone, language })
+      if (isMaster) await putMeCategories(selectedCats)
+    },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['me'] }),
   })
 
@@ -38,11 +41,6 @@ export default function Profile() {
       setShowMasterForm(false)
       void qc.invalidateQueries({ queryKey: ['me'] })
     },
-  })
-
-  const updateCatsMut = useMutation({
-    mutationFn: () => putMeCategories(selectedCats),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['me'] }),
   })
 
   const toggleCat = (id: string) =>
@@ -77,7 +75,7 @@ export default function Profile() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
+            className="w-full p-3 rounded-xl bg-secondary outline-none text-base"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -86,7 +84,7 @@ export default function Profile() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             type="tel"
-            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
+            className="w-full p-3 rounded-xl bg-secondary outline-none text-base"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -108,56 +106,40 @@ export default function Profile() {
             ))}
           </div>
         </div>
-        <button
-          onClick={() => saveMut.mutate()}
-          disabled={saveMut.isPending}
-          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
-        >
-          {t.profile.save}
-        </button>
       </div>
 
-      {!isMaster && (
-        <div>
-          {!showMasterForm ? (
-            <button
-              onClick={() => setShowMasterForm(true)}
-              className="w-full py-2.5 rounded-xl border border-primary text-primary font-medium text-sm"
-            >
-              {t.profile.becomeMaster}
-            </button>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-muted">{t.onboarding.selectCategories}</p>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => toggleCat(cat.id)}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full border text-sm transition-colors',
-                      selectedCats.includes(cat.id)
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'border-secondary'
-                    )}
-                  >
-                    {categoryName(cat, language)}
-                  </button>
-                ))}
-              </div>
+      {isMaster && (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted">{t.onboarding.selectCategories}</p>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
               <button
-                onClick={() => becomeMasterMut.mutate()}
-                disabled={selectedCats.length === 0 || becomeMasterMut.isPending}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
+                key={cat.id}
+                onClick={() => toggleCat(cat.id)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full border text-sm transition-colors',
+                  selectedCats.includes(cat.id)
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-secondary'
+                )}
               >
-                {becomeMasterMut.isPending ? '...' : t.profile.save}
+                {categoryName(cat, language)}
               </button>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       )}
 
-      {isMaster && (
+      {!isMaster && !showMasterForm && (
+        <button
+          onClick={() => setShowMasterForm(true)}
+          className="w-full py-2.5 rounded-xl border border-primary text-primary font-medium text-sm"
+        >
+          {t.profile.becomeMaster}
+        </button>
+      )}
+
+      {!isMaster && showMasterForm && (
         <div className="flex flex-col gap-3">
           <p className="text-sm text-muted">{t.onboarding.selectCategories}</p>
           <div className="flex flex-wrap gap-2">
@@ -177,13 +159,23 @@ export default function Profile() {
             ))}
           </div>
           <button
-            onClick={() => updateCatsMut.mutate()}
-            disabled={selectedCats.length === 0 || updateCatsMut.isPending}
+            onClick={() => becomeMasterMut.mutate()}
+            disabled={selectedCats.length === 0 || becomeMasterMut.isPending}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
           >
-            {updateCatsMut.isPending ? '...' : t.profile.save}
+            {becomeMasterMut.isPending ? '...' : t.profile.save}
           </button>
         </div>
+      )}
+
+      {(!isMaster ? !showMasterForm : true) && (
+        <button
+          onClick={() => saveMut.mutate()}
+          disabled={saveMut.isPending}
+          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
+        >
+          {saveMut.isPending ? '...' : t.profile.save}
+        </button>
       )}
     </div>
   )

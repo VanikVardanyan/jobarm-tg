@@ -48,7 +48,7 @@ export default function CreateJob() {
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full h-12 px-3 rounded-xl bg-secondary outline-none text-sm appearance-none bg-[length:1em] bg-[right_0.75rem_center] bg-no-repeat pr-10 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22currentColor%22><path%20fill-rule=%22evenodd%22%20d=%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule=%22evenodd%22/></svg>')]"
+            className="w-full h-12 px-3 rounded-xl bg-secondary outline-none text-base appearance-none bg-[length:1em] bg-[right_0.75rem_center] bg-no-repeat pr-10 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22currentColor%22><path%20fill-rule=%22evenodd%22%20d=%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule=%22evenodd%22/></svg>')]"
           >
             <option value="">—</option>
             {categories.map((c) => (
@@ -66,18 +66,19 @@ export default function CreateJob() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t.createJob.descriptionPlaceholder}
             rows={4}
-            className="w-full p-3 rounded-xl bg-secondary outline-none resize-none text-sm"
+            className="w-full p-3 rounded-xl bg-secondary outline-none resize-none text-base"
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm text-muted">{t.createJob.budget}</label>
           <input
-            type="number"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
-            min={1}
+            type="text"
+            inputMode="numeric"
+            value={budget ? Number(budget).toLocaleString('ru-RU') : ''}
+            onChange={(e) => setBudget(e.target.value.replace(/\D/g, ''))}
+            placeholder="0"
+            className="w-full p-3 rounded-xl bg-secondary outline-none text-base"
           />
         </div>
 
@@ -87,7 +88,7 @@ export default function CreateJob() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
+            className="w-full h-12 px-3 rounded-xl bg-secondary outline-none text-base"
           />
         </div>
 
