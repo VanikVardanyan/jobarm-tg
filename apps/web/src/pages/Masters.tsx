@@ -25,7 +25,7 @@ export default function Masters() {
 
   return (
     <div className="flex flex-col">
-      <div className="p-4 border-b border-secondary">
+      <div className="px-4 pb-4 border-b border-secondary tma-safe-top">
         <h1 className="text-lg font-semibold mb-3">{t.masters.title}</h1>
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           <button
@@ -54,7 +54,7 @@ export default function Masters() {
         </div>
       </div>
 
-      <div className="px-4 pb-4 flex flex-col gap-3 tma-safe-top">
+      <div className="p-4 flex flex-col gap-3">
         {isLoading && <div className="text-center text-muted py-8">...</div>}
         {masters.map((master) => (
           <button
