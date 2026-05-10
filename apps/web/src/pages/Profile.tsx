@@ -53,12 +53,22 @@ export default function Profile() {
       <h1 className="text-lg font-semibold">{t.profile.title}</h1>
 
       {isMaster && (
-        <button
-          onClick={() => setActiveRole(activeRole === 'customer' ? 'master' : 'customer')}
-          className="w-full py-2.5 rounded-xl border border-primary text-primary font-medium text-sm"
-        >
-          {activeRole === 'customer' ? t.profile.switchToMaster : t.profile.switchToCustomer}
-        </button>
+        <div className="flex p-1 rounded-xl bg-secondary">
+          {(['customer', 'master'] as const).map((role) => (
+            <button
+              key={role}
+              onClick={() => setActiveRole(role)}
+              className={cn(
+                'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
+                activeRole === role
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted'
+              )}
+            >
+              {role === 'customer' ? t.onboarding.asCustomer : t.onboarding.asMaster}
+            </button>
+          ))}
+        </div>
       )}
 
       <div className="flex flex-col gap-3">

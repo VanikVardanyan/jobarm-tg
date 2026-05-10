@@ -16,7 +16,6 @@ export default function CreateJob() {
   const [description, setDescription] = useState('')
   const [budget, setBudget] = useState('')
   const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
@@ -25,15 +24,14 @@ export default function CreateJob() {
 
   const mut = useMutation({
     mutationFn: () =>
-      postJob({ categoryId, description, budget: Number(budget), dateFrom, dateTo }),
+      postJob({ categoryId, description, budget: Number(budget), dateFrom, dateTo: dateFrom }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
       navigate('/home')
     },
   })
 
-  const valid =
-    categoryId && description.length >= 10 && Number(budget) > 0 && dateFrom && dateTo
+  const valid = categoryId && description.length >= 10 && Number(budget) > 0 && dateFrom
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -50,7 +48,7 @@ export default function CreateJob() {
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
+            className="w-full h-12 px-3 rounded-xl bg-secondary outline-none text-sm appearance-none bg-[length:1em] bg-[right_0.75rem_center] bg-no-repeat pr-10 bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22currentColor%22><path%20fill-rule=%22evenodd%22%20d=%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule=%22evenodd%22/></svg>')]"
           >
             <option value="">—</option>
             {categories.map((c) => (
@@ -83,25 +81,14 @@ export default function CreateJob() {
           />
         </div>
 
-        <div className="flex gap-3">
-          <div className="flex-1 flex flex-col gap-1">
-            <label className="text-sm text-muted">{t.createJob.dateFrom}</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
-            />
-          </div>
-          <div className="flex-1 flex flex-col gap-1">
-            <label className="text-sm text-muted">{t.createJob.dateTo}</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
-            />
-          </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-muted">{t.createJob.dateFrom}</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-full p-3 rounded-xl bg-secondary outline-none text-sm"
+          />
         </div>
 
         <button
