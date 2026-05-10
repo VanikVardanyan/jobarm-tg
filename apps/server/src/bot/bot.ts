@@ -31,7 +31,7 @@ bot.start(async (ctx) => {
       caption: '🚀 Վարպետներ և պատվիրատուներ՝ մեկ հարթակում։\n📲 Տեղադրեք առաջադրանքներ կամ գտեք աշխատանք՝ առանց ավելորդ քայլերի։',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🛠 Բացել JobArm', web_app: { url: config.MINI_APP_URL } }],
+          [{ text: '🚀 Սկսել', web_app: { url: config.MINI_APP_URL } }],
         ],
       },
     }
@@ -46,7 +46,7 @@ export async function configureBotMenu() {
   await bot.telegram.setChatMenuButton({
     menuButton: {
       type: 'web_app',
-      text: 'Բացել',
+      text: 'Սկսել',
       web_app: { url: config.MINI_APP_URL },
     },
   })
