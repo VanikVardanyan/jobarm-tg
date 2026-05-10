@@ -17,6 +17,7 @@ export interface UserProfile {
   language: Language
   isMaster: boolean
   isCustomer: boolean
+  isAdmin: boolean
   avatarUrl: string | null
   categories: Category[]
   rating: number | null

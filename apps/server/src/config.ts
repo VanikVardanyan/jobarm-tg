@@ -7,6 +7,15 @@ const schema = z.object({
   JWT_SECRET: z.string().min(16),
   MINI_APP_URL: z.string().url().default('https://example.com'),
   PORT: z.coerce.number().default(3000),
+  ADMIN_TELEGRAM_IDS: z
+    .string()
+    .default('')
+    .transform((s) =>
+      s
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean)
+    ),
 })
 
 export const config = schema.parse(process.env)

@@ -27,17 +27,22 @@ export default async function authRoutes(app: FastifyInstance) {
 
     const existingUser = await db.user.findUnique({ where: { telegramId } })
 
+    const adminFlag = config.ADMIN_TELEGRAM_IDS.includes(telegramId) ? { isAdmin: true } : {}
+
     const user = await db.user.upsert({
       where: { telegramId },
-      update: { chatId: telegramId, username: tgUser.username ?? null },
+      update: { chatId: telegramId, username: tgUser.username ?? null, ...adminFlag },
       create: {
         telegramId,
         chatId: telegramId,
         username: tgUser.username ?? null,
         name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
         language,
+        ...adminFlag,
       },
     })
+
+    if (user.isBanned) return reply.status(403).send({ error: 'banned' })
 
     const token = app.jwt.sign({ userId: user.id, telegramId })
     return { token, isNew: existingUser === null }

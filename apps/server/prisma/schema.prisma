@@ -17,6 +17,8 @@ model User {
   language        String         @default("ru")
   isMaster        Boolean        @default(false) @map("is_master")
   isCustomer      Boolean        @default(true) @map("is_customer")
+  isAdmin         Boolean        @default(false) @map("is_admin")
+  isBanned        Boolean        @default(false) @map("is_banned")
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
   chatId          String?        @map("chat_id")

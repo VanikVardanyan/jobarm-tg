@@ -185,6 +185,16 @@ export default function Profile() {
         </button>
       )}
 
+      {me?.isAdmin && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="flex items-center justify-between w-full p-4 rounded-xl border-2 border-amber-500/40 bg-amber-500/10"
+        >
+          <span className="text-sm font-medium">👑 Админка</span>
+          <ChevronRight className="w-5 h-5 text-muted" />
+        </button>
+      )}
+
       {!isMaster && !showMasterForm && (
         <button
           onClick={() => setShowMasterForm(true)}

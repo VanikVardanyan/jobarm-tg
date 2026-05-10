@@ -13,6 +13,8 @@ import MasterProfile from '@/pages/MasterProfile'
 import JobDetail from '@/pages/JobDetail'
 import CreateJob from '@/pages/CreateJob'
 import MasterSettings from '@/pages/MasterSettings'
+import Admin from '@/pages/Admin'
+import AdminUser from '@/pages/AdminUser'
 
 export default function App() {
   const { token, isOnboarded, language, setToken, setIsOnboarded, setIsMaster } = useStore()
@@ -92,6 +94,8 @@ export default function App() {
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/jobs/new" element={<CreateJob />} />
         <Route path="/profile/master" element={<MasterSettings />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/:id" element={<AdminUser />} />
         <Route path="*" element={<Navigate to={initialRedirect} replace />} />
       </Routes>
     </>

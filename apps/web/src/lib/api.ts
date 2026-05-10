@@ -33,6 +33,34 @@ export const uploadAvatar = (blob: Blob, filename = 'avatar.jpg') => {
 }
 export const deleteAvatar = () => client.delete('/me/avatar').then((r) => r.data)
 
+// Admin
+export interface AdminUser {
+  id: string
+  name: string
+  username: string | null
+  phone: string | null
+  telegramId: string
+  avatarUrl: string | null
+  isMaster: boolean
+  isAdmin: boolean
+  isBanned: boolean
+  createdAt: string
+  _count: { jobsAsCustomer: number; applications: number }
+}
+export const getAdminUsers = (q?: string) =>
+  client.get<AdminUser[]>('/admin/users', { params: q ? { q } : {} }).then((r) => r.data)
+type AdminApplication = Application & { jobId: string; job: Job & { category: Category } }
+export const getAdminUser = (id: string) =>
+  client.get<AdminUser & {
+    jobsAsCustomer: (Job & { category: Category })[]
+    applications: AdminApplication[]
+    categories: Category[]
+  }>(`/admin/users/${id}`).then((r) => r.data)
+export const banAdminUser = (id: string, banned: boolean) =>
+  client.post(`/admin/users/${id}/ban`, { banned }).then((r) => r.data)
+export const deleteAdminUser = (id: string) =>
+  client.delete(`/admin/users/${id}`).then((r) => r.data)
+
 // Notifications
 export interface NotificationItem {
   id: string
