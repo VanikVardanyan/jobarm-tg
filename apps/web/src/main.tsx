@@ -10,8 +10,19 @@ const qc = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 })
 
-window.Telegram?.WebApp.ready()
-window.Telegram?.WebApp.expand()
+const tg = window.Telegram?.WebApp
+tg?.ready()
+tg?.expand()
+tg?.requestFullscreen?.()
+
+const setVh = () => {
+  const h = tg?.viewportStableHeight ?? tg?.viewportHeight ?? window.innerHeight
+  document.documentElement.style.setProperty('--app-height', `${h}px`)
+}
+setVh()
+tg?.onEvent('viewportChanged', setVh)
+window.addEventListener('resize', setVh)
+
 watchTheme()
 
 createRoot(document.getElementById('root')!).render(

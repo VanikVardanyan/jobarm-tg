@@ -11,9 +11,10 @@ import {
   selectMaster,
   completeJob,
   postReview,
+  deleteJob,
 } from '@/lib/api'
 import { formatDate, formatBudget, cn } from '@/lib/utils'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Star, Trash2 } from 'lucide-react'
 
 function StarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
@@ -102,6 +103,25 @@ export default function JobDetail() {
     onSuccess: () => setReviewSent(true),
   })
 
+  const deleteMut = useMutation({
+    mutationFn: () => deleteJob(id!),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
+      navigate('/home')
+    },
+    onError: () => showToast(t.errors.generic, 'error'),
+  })
+
+  const handleDelete = () => {
+    const confirmText =
+      language === 'hy'
+        ? 'Ջնջե՞լ պատվերը։ Այս գործողությունը հնարավոր չէ հետ բերել։'
+        : language === 'en'
+        ? 'Delete this job? This cannot be undone.'
+        : 'Удалить заказ? Действие нельзя отменить.'
+    if (window.confirm(confirmText)) deleteMut.mutate()
+  }
+
   if (isLoading || !job) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -118,7 +138,19 @@ export default function JobDetail() {
         <button onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="font-semibold line-clamp-1">{categoryName(job.category, language)}</span>
+        <span className="flex-1 min-w-0 font-semibold line-clamp-1">
+          {categoryName(job.category, language)}
+        </span>
+        {isCustomer && job.status === 'new' && (
+          <button
+            onClick={handleDelete}
+            disabled={deleteMut.isPending}
+            aria-label="Delete"
+            className="text-rose-500 disabled:opacity-50"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        )}
       </header>
 
       <div className="flex-1 p-4 flex flex-col gap-4">

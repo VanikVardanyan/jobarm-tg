@@ -15,6 +15,10 @@ interface Window {
       ready(): void
       expand(): void
       close(): void
+      requestFullscreen?: () => void
+      isExpanded?: boolean
+      viewportHeight?: number
+      viewportStableHeight?: number
       themeParams: Record<string, string>
       colorScheme: 'light' | 'dark'
       onEvent(event: string, callback: () => void): void

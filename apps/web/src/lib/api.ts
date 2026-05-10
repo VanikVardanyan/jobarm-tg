@@ -41,6 +41,7 @@ export const postJob = (data: {
   dateFrom?: string
   dateTo?: string
 }) => client.post<Job>('/jobs', data).then((r) => r.data)
+export const deleteJob = (id: string) => client.delete(`/jobs/${id}`).then((r) => r.data)
 
 // Applications
 export const applyToJob = (jobId: string, comment?: string) =>

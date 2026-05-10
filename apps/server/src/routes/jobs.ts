@@ -102,4 +102,21 @@ export default async function jobsRoutes(app: FastifyInstance) {
     void notifyMastersNewJob(job.id)
     return { ...job, applicationCount: job._count.applications }
   })
+
+  // Customer: delete own job (only when still open)
+  app.delete<{ Params: { id: string } }>(
+    '/jobs/:id',
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const { userId } = request.user
+      const job = await db.job.findUniqueOrThrow({ where: { id: request.params.id } })
+      if (job.customerId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+      if (job.status !== 'new')
+        return reply.status(400).send({ error: 'Only new jobs can be deleted' })
+
+      await db.application.deleteMany({ where: { jobId: job.id } })
+      await db.job.delete({ where: { id: job.id } })
+      return reply.status(204).send()
+    }
+  )
 }
