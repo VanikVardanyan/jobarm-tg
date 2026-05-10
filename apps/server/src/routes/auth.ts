@@ -29,9 +29,10 @@ export default async function authRoutes(app: FastifyInstance) {
 
     const user = await db.user.upsert({
       where: { telegramId },
-      update: {},
+      update: { chatId: telegramId },
       create: {
         telegramId,
+        chatId: telegramId,
         name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
         language,
       },
