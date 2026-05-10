@@ -34,7 +34,7 @@ export async function configureBotMenu() {
   await bot.telegram.setChatMenuButton({
     menuButton: {
       type: 'web_app',
-      text: 'Открыть приложение',
+      text: 'Բացել հավելվածը',
       web_app: { url: config.MINI_APP_URL },
     },
   })
