@@ -190,13 +190,17 @@ export default function JobDetail() {
           const name = isCustomer ? job.masterName : job.customerName
           const username = isCustomer ? job.masterUsername : job.customerUsername
           const tgUrl = username ? `https://t.me/${username}` : null
+          const tg = window.Telegram?.WebApp
+          const cleanPhone = phone.replace(/[^+\d]/g, '')
           const openTg = () => {
             if (!tgUrl) return
-            const tg = window.Telegram?.WebApp as unknown as {
-              openTelegramLink?: (u: string) => void
-            }
             if (tg?.openTelegramLink) tg.openTelegramLink(tgUrl)
             else window.open(tgUrl, '_blank')
+          }
+          const openCall = () => {
+            const url = `tel:${cleanPhone}`
+            if (tg?.openLink) tg.openLink(url)
+            else window.location.href = url
           }
           return (
             <div className="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 flex flex-col gap-3">
@@ -206,12 +210,12 @@ export default function JobDetail() {
                 </p>
                 <p className="font-semibold mt-1">{name}</p>
               </div>
-              <a
-                href={`tel:${phone}`}
+              <button
+                onClick={openCall}
                 className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium"
               >
                 📞 {phone}
-              </a>
+              </button>
               {tgUrl && (
                 <button
                   onClick={openTg}

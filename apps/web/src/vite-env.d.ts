@@ -16,6 +16,8 @@ interface Window {
       ready(): void
       expand(): void
       close(): void
+      openLink?: (url: string, options?: { try_browser?: string }) => void
+      openTelegramLink?: (url: string) => void
       requestFullscreen?: () => void
       isExpanded?: boolean
       viewportHeight?: number
