@@ -50,4 +50,15 @@ export async function configureBotMenu() {
       web_app: { url: config.MINI_APP_URL },
     },
   })
+
+  await bot.telegram.setMyDescription(
+    '🚀 JobArm — վարպետներ և պատվիրատուներ մեկ հարթակում։\n\n' +
+      '📲 Տեղադրեք առաջադրանքներ կամ գտեք աշխատանք՝ առանց ավելորդ քայլերի։\n' +
+      '⭐ Վարկանիշներ, կարծիքներ և ստուգված վարպետներ։\n' +
+      '🔒 Ամեն ինչ՝ Telegram-ի ներսում։'
+  )
+
+  await bot.telegram.setMyShortDescription(
+    'Աշխատանք և վարպետներ Հայաստանում'
+  )
 }
