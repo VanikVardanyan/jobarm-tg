@@ -79,6 +79,7 @@ const ru = {
     phone: "Телефон",
     language: "Язык",
     save: "Сохранить",
+    saved: "Настройки сохранены",
     logout: "Выйти",
   },
   notifications: {
@@ -172,6 +173,7 @@ const hy: Strings = {
     phone: "Հեռախոս",
     language: "Լեզու",
     save: "Պահպանել",
+    saved: "Կարգավորումները պահպանված են",
     logout: "Դուրս գալ",
   },
   notifications: {
@@ -263,6 +265,7 @@ const en: Strings = {
     phone: "Phone",
     language: "Language",
     save: "Save",
+    saved: "Settings saved",
     logout: "Log out",
   },
   notifications: {

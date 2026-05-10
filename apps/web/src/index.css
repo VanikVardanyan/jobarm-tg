@@ -4,12 +4,28 @@
 
 :root {
   --tg-theme-bg-color: #ffffff;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #2481cc;
-  --tg-theme-button-color: #2481cc;
+  --tg-theme-text-color: #0b0f1a;
+  --tg-theme-hint-color: #6b7280;
+  --tg-theme-link-color: #6366f1;
+  --tg-theme-button-color: #6366f1;
   --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #f1f1f1;
+  --tg-theme-secondary-bg-color: #f3f4f6;
+  --brand-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+button[class*="bg-primary"] {
+  background-image: var(--brand-gradient);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+button[class*="bg-primary"]:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+button[class*="bg-primary"]:disabled {
+  background-image: none;
+  background-color: #c7d2fe;
+  box-shadow: none;
 }
 
 body {

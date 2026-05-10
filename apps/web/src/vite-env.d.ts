@@ -16,6 +16,13 @@ interface Window {
       expand(): void
       close(): void
       themeParams: Record<string, string>
+      colorScheme: 'light' | 'dark'
+      onEvent(event: string, callback: () => void): void
+      offEvent(event: string, callback: () => void): void
+      HapticFeedback?: {
+        notificationOccurred(type: 'success' | 'error' | 'warning'): void
+        impactOccurred(style: 'light' | 'medium' | 'heavy'): void
+      }
     }
   }
 }

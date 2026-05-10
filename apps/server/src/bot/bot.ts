@@ -41,3 +41,13 @@ bot.start(async (ctx) => {
 bot.catch((err, ctx) => {
   console.error(`Bot error for ${ctx.updateType} (user ${ctx.from?.id}):`, err)
 })
+
+export async function configureBotMenu() {
+  await bot.telegram.setChatMenuButton({
+    menuButton: {
+      type: 'web_app',
+      text: 'Բացել',
+      web_app: { url: config.MINI_APP_URL },
+    },
+  })
+}

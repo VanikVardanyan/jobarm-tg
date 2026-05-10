@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useStore } from '@/store'
 import { postTelegramAuth } from '@/lib/api'
 import Layout from '@/components/Layout'
+import { Toast } from '@/components/Toast'
 import Home from '@/pages/Home'
 import Masters from '@/pages/Masters'
 import Notifications from '@/pages/Notifications'
@@ -46,18 +47,21 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/masters" element={<Masters />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/profile" element={<Profile />} />
-      </Route>
-      <Route path="/masters/:id" element={<MasterProfile />} />
-      <Route path="/jobs/:id" element={<JobDetail />} />
-      <Route path="/jobs/new" element={<CreateJob />} />
-      <Route path="*" element={<Navigate to="/home" replace />} />
-    </Routes>
+    <>
+      <Toast />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/masters" element={<Masters />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+        <Route path="/masters/:id" element={<MasterProfile />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/jobs/new" element={<CreateJob />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Routes>
+    </>
   )
 }

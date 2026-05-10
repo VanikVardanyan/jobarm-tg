@@ -3,11 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getMe, putMe, postMeMaster, putMeCategories, getCategories } from '@/lib/api'
+import { useToast } from '@/components/Toast'
 import { cn } from '@/lib/utils'
 
 export default function Profile() {
   const t = useT()
   const qc = useQueryClient()
+  const showToast = useToast((s) => s.show)
   const { activeRole, isMaster, language, setActiveRole, setLanguage, setIsMaster } = useStore()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
@@ -31,7 +33,11 @@ export default function Profile() {
       await putMe({ name, phone, language })
       if (isMaster) await putMeCategories(selectedCats)
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['me'] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+      showToast(t.profile.saved, 'success')
+    },
+    onError: () => showToast(t.errors.generic, 'error'),
   })
 
   const becomeMasterMut = useMutation({
@@ -40,7 +46,9 @@ export default function Profile() {
       setIsMaster(true)
       setShowMasterForm(false)
       void qc.invalidateQueries({ queryKey: ['me'] })
+      showToast(t.profile.saved, 'success')
     },
+    onError: () => showToast(t.errors.generic, 'error'),
   })
 
   const toggleCat = (id: string) =>

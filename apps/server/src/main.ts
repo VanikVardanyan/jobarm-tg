@@ -1,6 +1,6 @@
 import { buildApp } from './app.js'
 import { config } from './config.js'
-import { bot } from './bot/bot.js'
+import { bot, configureBotMenu } from './bot/bot.js'
 import { initNotifications } from './bot/notifications.js'
 
 const app = buildApp()
@@ -17,6 +17,10 @@ app.listen({ port: config.PORT, host: '0.0.0.0' }, (err) => {
 bot.launch().catch((err) => {
   app.log.error({ err }, 'Bot launch failed')
   process.exit(1)
+})
+
+configureBotMenu().catch((err) => {
+  app.log.warn({ err }, 'Failed to configure bot menu button')
 })
 
 const shutdown = async (signal: string) => {
