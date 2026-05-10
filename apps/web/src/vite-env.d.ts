@@ -19,7 +19,10 @@ interface Window {
       openLink?: (url: string, options?: { try_browser?: string }) => void
       openTelegramLink?: (url: string) => void
       requestFullscreen?: () => void
+      exitFullscreen?: () => void
+      disableVerticalSwipes?: () => void
       isExpanded?: boolean
+      isFullscreen?: boolean
       viewportHeight?: number
       viewportStableHeight?: number
       themeParams: Record<string, string>

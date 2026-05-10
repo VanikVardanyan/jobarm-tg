@@ -22,6 +22,17 @@ const qc = new QueryClient({
 const tg = window.Telegram?.WebApp
 tg?.ready()
 tg?.expand()
+try { tg?.requestFullscreen?.() } catch { /* ignore on older clients */ }
+try { tg?.disableVerticalSwipes?.() } catch { /* ignore */ }
+
+const setAppHeight = () => {
+  const h = tg?.viewportStableHeight ?? tg?.viewportHeight ?? window.innerHeight
+  document.documentElement.style.setProperty('--app-height', `${h}px`)
+}
+setAppHeight()
+tg?.onEvent?.('viewportChanged', setAppHeight)
+tg?.onEvent?.('fullscreenChanged', setAppHeight)
+window.addEventListener('resize', setAppHeight)
 
 // Capture deep-link param synchronously before router boots — Telegram may put it in:
 // - initDataUnsafe.start_param (direct link)
