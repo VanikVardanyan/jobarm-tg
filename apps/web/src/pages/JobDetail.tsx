@@ -140,7 +140,7 @@ export default function JobDetail() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex items-center gap-3 p-4 border-b border-secondary">
-        <button onClick={() => navigate(-1)}>
+        <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/home'))}>
           <ArrowLeft className="w-5 h-5" />
         </button>
         <span className="flex-1 min-w-0 font-semibold line-clamp-1">

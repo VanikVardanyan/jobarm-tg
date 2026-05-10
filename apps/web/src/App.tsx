@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '@/store'
-import { postTelegramAuth } from '@/lib/api'
+import { postTelegramAuth, getMe } from '@/lib/api'
 import Layout from '@/components/Layout'
 import { Toast } from '@/components/Toast'
 import Home from '@/pages/Home'
@@ -15,7 +15,7 @@ import CreateJob from '@/pages/CreateJob'
 import MasterSettings from '@/pages/MasterSettings'
 
 export default function App() {
-  const { token, isOnboarded, language, setToken } = useStore()
+  const { token, isOnboarded, language, setToken, setIsOnboarded, setIsMaster } = useStore()
   const [loading, setLoading] = useState(!token)
   const navigate = useNavigate()
 
@@ -27,6 +27,19 @@ export default function App() {
       .then(({ token: t }) => setToken(t))
       .finally(() => setLoading(false))
   }, [])
+
+  // Auto-restore onboarding state from server when local flag is missing
+  useEffect(() => {
+    if (!token || isOnboarded) return
+    getMe()
+      .then((me) => {
+        if (me.phone && me.name && me.name !== 'User') {
+          setIsOnboarded(true)
+          setIsMaster(me.isMaster)
+        }
+      })
+      .catch(() => undefined)
+  }, [token, isOnboarded])
 
   // Deep-link from bot notification: ?startapp=job_<id> opens that job.
   // Param is captured in main.tsx before the router boots.
