@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
+import { useToast } from '@/components/Toast'
 import {
   getJob,
   getApplications,
@@ -41,7 +42,8 @@ export default function JobDetail() {
   const navigate = useNavigate()
   const t = useT()
   const qc = useQueryClient()
-  const { activeRole, language, token } = useStore()
+  const { activeRole, isMaster: storeIsMaster, language, token, setActiveRole } = useStore()
+  const showToast = useToast((s) => s.show)
   const userId = token ? decodeUserId(token) : null
 
   const [applyComment, setApplyComment] = useState('')
@@ -59,6 +61,13 @@ export default function JobDetail() {
   const isCustomer = !!job && job.customerId === userId
   const isMaster = !!job && job.selectedMasterId === userId
 
+  // Auto-switch to master role when viewing a foreign job and user is registered as a master
+  useEffect(() => {
+    if (job && !isCustomer && storeIsMaster && activeRole !== 'master') {
+      setActiveRole('master')
+    }
+  }, [job, isCustomer, storeIsMaster])
+
   const { data: applications = [] } = useQuery({
     queryKey: ['applications', id],
     queryFn: () => getApplications(id!),
@@ -70,7 +79,9 @@ export default function JobDetail() {
     onSuccess: () => {
       setApplyComment('')
       void qc.invalidateQueries({ queryKey: ['job', id] })
+      showToast(t.job.applied, 'success')
     },
+    onError: () => showToast(t.errors.generic, 'error'),
   })
 
   const selectMut = useMutation({
@@ -99,7 +110,7 @@ export default function JobDetail() {
     )
   }
 
-  const alreadyApplied = applications.some((a) => a.master.id === userId)
+  const alreadyApplied = job.hasApplied || applications.some((a) => a.master.id === userId)
 
   return (
     <div className="flex flex-col min-h-screen">

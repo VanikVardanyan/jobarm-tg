@@ -31,7 +31,9 @@ export const getMyJobs = () => client.get<Job[]>('/jobs/my').then((r) => r.data)
 export const getJobFeed = () => client.get<Job[]>('/jobs/feed').then((r) => r.data)
 export const getAssignedJobs = () => client.get<Job[]>('/jobs/assigned').then((r) => r.data)
 export const getJob = (id: string) =>
-  client.get<Job & { customer: UserProfile }>(`/jobs/${id}`).then((r) => r.data)
+  client
+    .get<Job & { customer: UserProfile; hasApplied: boolean }>(`/jobs/${id}`)
+    .then((r) => r.data)
 export const postJob = (data: {
   categoryId: string
   description: string

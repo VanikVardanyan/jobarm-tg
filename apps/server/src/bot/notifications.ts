@@ -1,5 +1,6 @@
 import type { Telegraf } from 'telegraf'
 import { db } from '../db.js'
+import { config } from '../config.js'
 import { buildMessage } from './messages.js'
 
 let _bot: Telegraf | null = null
@@ -8,7 +9,7 @@ export function initNotifications(bot: Telegraf) {
   _bot = bot
 }
 
-async function send(telegramId: string, text: string): Promise<void> {
+async function send(telegramId: string, text: string, buttonLabel = 'Բացել'): Promise<void> {
   if (!_bot) return
   try {
     const user = await db.user.findUnique({
@@ -16,7 +17,12 @@ async function send(telegramId: string, text: string): Promise<void> {
       select: { chatId: true },
     })
     if (!user?.chatId) return
-    await _bot.telegram.sendMessage(user.chatId, text, { parse_mode: 'Markdown' })
+    await _bot.telegram.sendMessage(user.chatId, text, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [[{ text: buttonLabel, web_app: { url: config.MINI_APP_URL } }]],
+      },
+    })
   } catch {
     // Silently ignore: user may have blocked the bot
   }

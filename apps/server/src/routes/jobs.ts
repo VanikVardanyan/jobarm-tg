@@ -53,11 +53,20 @@ export default async function jobsRoutes(app: FastifyInstance) {
     '/jobs/:id',
     { preHandler: [app.authenticate] },
     async (request) => {
+      const { userId } = request.user
       const job = await db.job.findUniqueOrThrow({
         where: { id: request.params.id },
         include: { ...jobInclude, customer: true },
       })
-      return { ...job, applicationCount: job._count.applications }
+      const myApplication = await db.application.findFirst({
+        where: { jobId: job.id, masterId: userId },
+        select: { id: true },
+      })
+      return {
+        ...job,
+        applicationCount: job._count.applications,
+        hasApplied: !!myApplication,
+      }
     }
   )
 
