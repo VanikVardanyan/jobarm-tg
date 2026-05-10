@@ -13,16 +13,16 @@
   --brand-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
-button[class*="bg-primary"] {
+button[class*="bg-primary"]:not([class*="bg-primary/"]) {
   background-image: var(--brand-gradient);
   box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
   transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
-button[class*="bg-primary"]:active {
+button[class*="bg-primary"]:not([class*="bg-primary/"]):active {
   transform: scale(0.98);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
-button[class*="bg-primary"]:disabled {
+button[class*="bg-primary"]:not([class*="bg-primary/"]):disabled {
   background-image: none;
   background-color: #c7d2fe;
   box-shadow: none;

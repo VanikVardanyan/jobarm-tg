@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getCategories, postJob } from '@/lib/api'
+import { useToast } from '@/components/Toast'
 import { ArrowLeft } from 'lucide-react'
 
 export default function CreateJob() {
@@ -11,6 +12,7 @@ export default function CreateJob() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const language = useStore((s) => s.language)
+  const showToast = useToast((s) => s.show)
 
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
@@ -28,6 +30,10 @@ export default function CreateJob() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
       navigate('/home')
+    },
+    onError: (err) => {
+      console.error('Job creation failed:', err)
+      showToast(t.errors.generic, 'error')
     },
   })
 

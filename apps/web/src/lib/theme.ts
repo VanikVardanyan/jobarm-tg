@@ -8,7 +8,7 @@ const LIGHT = {
   bg: '#ffffff',
   text: '#0b0f1a',
   hint: '#6b7280',
-  secondary: '#f3f4f6',
+  secondary: '#e5e7eb',
 }
 
 const DARK = {
