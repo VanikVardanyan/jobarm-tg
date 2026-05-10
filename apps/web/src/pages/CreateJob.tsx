@@ -37,7 +37,13 @@ export default function CreateJob() {
     },
   })
 
-  const valid = categoryId && description.length >= 10 && Number(budget) > 0 && dateFrom
+  const submit = () => {
+    if (!categoryId) return showToast('Выберите категорию', 'error')
+    if (description.trim().length < 10) return showToast('Описание минимум 10 символов', 'error')
+    if (!(Number(budget) > 0)) return showToast('Укажите бюджет', 'error')
+    if (!dateFrom) return showToast('Укажите дату', 'error')
+    mut.mutate()
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -99,8 +105,8 @@ export default function CreateJob() {
         </div>
 
         <button
-          onClick={() => mut.mutate()}
-          disabled={!valid || mut.isPending}
+          onClick={submit}
+          disabled={mut.isPending}
           className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium disabled:opacity-50"
         >
           {mut.isPending ? '...' : t.createJob.submit}
