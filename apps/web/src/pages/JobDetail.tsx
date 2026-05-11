@@ -184,21 +184,14 @@ export default function JobDetail() {
           const phone = isCustomer ? job.masterPhone! : job.customerPhone!
           const name = isCustomer ? job.masterName : job.customerName
           const username = isCustomer ? job.masterUsername : job.customerUsername
-          const tgId = isCustomer ? job.masterTgId : job.customerTgId
           const avatar = isCustomer ? job.masterAvatar : job.customerAvatar
           const tg = window.Telegram?.WebApp
           const cleanPhone = phone.replace(/[^+\d]/g, '')
-          const canOpenTg = !!(username || tgId)
+          const phoneDigits = cleanPhone.replace(/^\+/, '')
+          const tgUrl = username ? `https://t.me/${username}` : `https://t.me/+${phoneDigits}`
           const openTg = () => {
-            if (username && tg?.openTelegramLink) {
-              tg.openTelegramLink(`https://t.me/${username}`)
-              return
-            }
-            if (tgId && tg?.openLink) {
-              tg.openLink(`tg://user?id=${tgId}`)
-              return
-            }
-            if (username) window.open(`https://t.me/${username}`, '_blank')
+            if (tg?.openTelegramLink) tg.openTelegramLink(tgUrl)
+            else window.open(tgUrl, '_blank')
           }
           const openCall = () => {
             const url = `tel:${cleanPhone}`
@@ -222,14 +215,12 @@ export default function JobDetail() {
               >
                 📞 {phone}
               </button>
-              {canOpenTg && (
-                <button
-                  onClick={openTg}
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg border border-primary text-primary font-medium"
-                >
-                  💬 Написать в Telegram
-                </button>
-              )}
+              <button
+                onClick={openTg}
+                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-lg border border-primary text-primary font-medium"
+              >
+                💬 Написать в Telegram
+              </button>
             </div>
           )
         })()}
