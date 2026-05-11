@@ -31,9 +31,6 @@ services:
       redis:
         condition: service_healthy
     env_file: .env
-    environment:
-      DATABASE_URL: postgresql://jobbarm:jobbarm@postgres:5432/jobbarm
-      REDIS_URL: redis://redis:6379/0
     restart: unless-stopped
 
 volumes:
