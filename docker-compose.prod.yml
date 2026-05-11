@@ -24,6 +24,10 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     restart: always
+    volumes:
+      - /var/www/jobarm-uploads:/var/www/jobarm-uploads
+    environment:
+      UPLOAD_DIR: /var/www/jobarm-uploads/avatars
     logging:
       driver: json-file
       options:
