@@ -33,7 +33,7 @@ export function Toast() {
   if (!message) return null
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div className="fixed left-1/2 -translate-x-1/2 z-50 pointer-events-none bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)]">
       <div
         className={cn(
           'px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg text-white',
