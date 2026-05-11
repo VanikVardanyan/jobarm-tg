@@ -112,7 +112,7 @@ export const getJob = (id: string) =>
 export const postJob = (data: {
   categoryId: string
   description: string
-  budget: number
+  budget?: number
   dateFrom?: string
   dateTo?: string
 }) => client.post<Job>('/jobs', data).then((r) => r.data)
