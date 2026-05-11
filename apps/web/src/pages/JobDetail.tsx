@@ -173,7 +173,7 @@ export default function JobDetail() {
         <div className="flex flex-col gap-2">
           <p className="text-sm">{job.description}</p>
           <p className="text-sm text-muted">
-            {t.job.budget}: {formatBudget(job.budget)}
+            {t.job.budget}: {formatBudget(job.budget, language)}
           </p>
           <p className="text-sm text-muted">
             {t.job.dates}: {formatDate(job.dateFrom, language)}

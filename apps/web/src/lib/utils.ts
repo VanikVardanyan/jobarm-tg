@@ -13,6 +13,9 @@ export function formatDate(iso: string, lang: string): string {
   })
 }
 
-export function formatBudget(amount: number): string {
+export function formatBudget(amount: number, lang = 'ru'): string {
+  if (!amount) {
+    return lang === 'hy' ? 'Պայմանավորվող' : lang === 'en' ? 'Negotiable' : 'Договорная'
+  }
   return `${amount.toLocaleString('ru-RU')} ֏`
 }

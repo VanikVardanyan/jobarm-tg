@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@/store'
 import { useT, categoryName } from '@/lib/i18n'
 import { getCategories, postJob } from '@/lib/api'
-import { useToast } from '@/components/Toast'
 import { ArrowLeft } from 'lucide-react'
 
 export default function CreateJob() {
@@ -12,7 +11,6 @@ export default function CreateJob() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const language = useStore((s) => s.language)
-  const showToast = useToast((s) => s.show)
 
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
@@ -24,28 +22,36 @@ export default function CreateJob() {
     queryFn: getCategories,
   })
 
+  const [error, setError] = useState<string | null>(null)
+
   const mut = useMutation({
-    mutationFn: () =>
-      postJob({
+    mutationFn: () => {
+      const budgetNum = Number(budget)
+      return postJob({
         categoryId,
         description,
-        budget: Number(budget),
+        ...(budgetNum > 0 ? { budget: budgetNum } : {}),
         ...(dateFrom ? { dateFrom, dateTo: dateFrom } : {}),
-      }),
+      })
+    },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['jobs', 'my'] })
       navigate('/home')
     },
     onError: (err) => {
       console.error('Job creation failed:', err)
-      showToast(t.errors.generic, 'error')
+      setError(t.errors.generic)
     },
   })
 
   const submit = () => {
-    if (!categoryId) return showToast('Выберите категорию', 'error')
-    if (description.trim().length < 3) return showToast('Описание минимум 3 символа', 'error')
-    if (!(Number(budget) > 0)) return showToast('Укажите бюджет', 'error')
+    setError(null)
+    if (!categoryId) return setError(
+      language === 'hy' ? 'Ընտրեք կատեգորիան' : language === 'en' ? 'Pick a category' : 'Выберите категорию'
+    )
+    if (description.trim().length < 3) return setError(
+      language === 'hy' ? 'Նկարագրությունը՝ նվազ. 3 նիշ' : language === 'en' ? 'Description min 3 chars' : 'Описание минимум 3 символа'
+    )
     mut.mutate()
   }
 
@@ -87,7 +93,9 @@ export default function CreateJob() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-muted">{t.createJob.budget}</label>
+          <label className="text-sm text-muted">
+            {t.createJob.budget} <span className="text-xs">({t.createJob.optional})</span>
+          </label>
           <input
             type="text"
             inputMode="numeric"
@@ -107,6 +115,12 @@ export default function CreateJob() {
             className="w-full h-12 px-3 rounded-xl bg-secondary outline-none text-base"
           />
         </div>
+
+        {error && (
+          <div className="px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-sm text-rose-600 dark:text-rose-400">
+            {error}
+          </div>
+        )}
 
         <button
           onClick={submit}

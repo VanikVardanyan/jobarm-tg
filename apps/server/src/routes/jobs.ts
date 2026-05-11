@@ -107,7 +107,7 @@ export default async function jobsRoutes(app: FastifyInstance) {
     const schema = z.object({
       categoryId: z.string().uuid(),
       description: z.string().min(3),
-      budget: z.number().int().positive(),
+      budget: z.number().int().positive().optional(),
       dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
       dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     })
@@ -122,7 +122,7 @@ export default async function jobsRoutes(app: FastifyInstance) {
         customerId: userId,
         categoryId: data.categoryId,
         description: data.description,
-        budget: data.budget,
+        budget: data.budget ?? 0,
         dateFrom,
         dateTo,
       },
