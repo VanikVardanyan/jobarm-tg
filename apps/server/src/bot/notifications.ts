@@ -185,6 +185,42 @@ export async function notifyJobCompleted(jobId: string, masterId: string): Promi
   }
 }
 
+export async function notifyAdminsNewUser(userId: string): Promise<void> {
+  if (!_bot || config.ADMIN_TELEGRAM_IDS.length === 0) return
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        username: true,
+        telegramId: true,
+        phone: true,
+        language: true,
+        isMaster: true,
+      },
+    })
+    if (!user) return
+
+    const text =
+      `🆕 *Նոր օգտատեր*\n\n` +
+      `👤 ${user.name}\n` +
+      (user.username ? `🆔 @${user.username}\n` : '') +
+      (user.phone ? `📞 ${user.phone}\n` : '') +
+      `🌐 ${user.language} · ${user.isMaster ? '🛠 master' : '👤 customer'}\n` +
+      `tg id: \`${user.telegramId}\``
+
+    await Promise.all(
+      config.ADMIN_TELEGRAM_IDS.map((tgId) =>
+        _bot!.telegram
+          .sendMessage(tgId, text, { parse_mode: 'Markdown' })
+          .catch(() => undefined)
+      )
+    )
+  } catch {
+    // silent
+  }
+}
+
 export async function notifyMasterNewReview(
   masterId: string,
   rating: number,

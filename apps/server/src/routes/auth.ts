@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { validateTelegramInitData } from '../plugins/auth.js'
 import { db } from '../db.js'
 import { config } from '../config.js'
+import { notifyAdminsNewUser } from '../bot/notifications.js'
 
 const bodySchema = z.object({
   initData: z.string().min(1),
@@ -44,7 +45,10 @@ export default async function authRoutes(app: FastifyInstance) {
 
     if (user.isBanned) return reply.status(403).send({ error: 'banned' })
 
+    const isNew = existingUser === null
+    if (isNew) void notifyAdminsNewUser(user.id)
+
     const token = app.jwt.sign({ userId: user.id, telegramId })
-    return { token, isNew: existingUser === null }
+    return { token, isNew }
   })
 }
