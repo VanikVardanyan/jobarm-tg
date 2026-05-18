@@ -2,6 +2,7 @@ import { InlineKeyboard } from 'grammy'
 import type { Language } from '@jobbarm/shared'
 import { SERVICE_TYPES, DISTRICTS, URGENCIES, CAR_MAKES, localizedLabel } from '@jobbarm/shared'
 import { t } from './i18n.js'
+import { config } from '../config.js'
 
 export function roleKeyboard(lang: Language): InlineKeyboard {
   return new InlineKeyboard()
@@ -14,8 +15,8 @@ export function clientMenuKeyboard(lang: Language): InlineKeyboard {
   return new InlineKeyboard()
     .text(t(lang, 'btnCreateRequest'), 'menu:create_request')
     .row()
-    .text(t(lang, 'btnMyRequests'), 'menu:my_requests')
-    .text(t(lang, 'btnMyCars'), 'menu:my_cars')
+    .webApp(t(lang, 'btnMyRequests'), `${config.MINI_APP_URL}/requests`)
+    .webApp(t(lang, 'btnMyCars'), `${config.MINI_APP_URL}/cars`)
     .row()
     .text(t(lang, 'btnHelp'), 'menu:help')
 }

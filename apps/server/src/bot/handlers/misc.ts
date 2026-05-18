@@ -49,7 +49,7 @@ miscHandler.callbackQuery('menu:help', async (ctx) => {
 
 // Phase-2/3 destinations — not dead: acknowledge + "coming soon" for now.
 miscHandler.callbackQuery(
-  /^menu:(create_request|my_requests|my_cars|available_requests|my_offers|active_jobs|profile)$/,
+  /^menu:(available_requests|my_offers|active_jobs|profile)$/,
   async (ctx) => {
     await ctx.answerCallbackQuery()
     await ctx.reply(t(lang(ctx), 'comingSoon'))

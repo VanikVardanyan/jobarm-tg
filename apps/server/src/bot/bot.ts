@@ -7,6 +7,7 @@ import { loadUser, banGate } from './middleware.js'
 import { startHandler, showMenu } from './handlers/start.js'
 import { miscHandler } from './handlers/misc.js'
 import { registerService, REGISTER_SERVICE } from './conversations/registerService.js'
+import { createRequest, CREATE_REQUEST } from './conversations/createRequest.js'
 
 export const bot = new Bot<BotContext>(config.BOT_TOKEN)
 
@@ -24,11 +25,17 @@ bot.use(banGate)
 
 bot.use(conversations())
 bot.use(createConversation(registerService, REGISTER_SERVICE))
+bot.use(createConversation(createRequest, CREATE_REQUEST))
 
 // Enter the registration wizard from the service "register" button.
 bot.callbackQuery('menu:register_service', async (ctx) => {
   await ctx.answerCallbackQuery()
   await ctx.conversation.enter(REGISTER_SERVICE)
+})
+
+bot.callbackQuery('menu:create_request', async (ctx) => {
+  await ctx.answerCallbackQuery()
+  await ctx.conversation.enter(CREATE_REQUEST)
 })
 
 bot.use(startHandler)
