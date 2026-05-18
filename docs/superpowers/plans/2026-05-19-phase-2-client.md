@@ -1591,6 +1591,10 @@ export default function RequestDetailPage() {
                   label={t.requests.drivable}
                   value={r.isDrivable ? t.requests.drivable : t.requests.notDrivable}
                 />
+                <Row
+                  label={t.requests.created}
+                  value={new Date(r.createdAt).toLocaleDateString()}
+                />
                 <div className="py-3">
                   <div className="text-muted text-sm mb-1">{t.requests.description}</div>
                   <div className="whitespace-pre-wrap">{r.description}</div>
