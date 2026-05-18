@@ -120,10 +120,10 @@ Expected: output contains `"zod"`. (It is already used by server/web; if shared 
 Run: `pnpm --filter @jobbarm/shared build && pnpm --filter server exec tsc --noEmit && pnpm --filter web exec tsc --noEmit`
 Expected: all exit 0, no output. `packages/shared/dist/index.d.ts` now exports `carInputSchema`, `CarInput`, `Car`, `RequestSummary`, `RequestDetail`, `CURRENT_YEAR`.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Commit** (include `pnpm-lock.yaml` — `pnpm add zod` updates it; committing keeps `--frozen-lockfile` CI green)
 
 ```bash
-git add packages/shared/src/index.ts packages/shared/package.json
+git add packages/shared/src/index.ts packages/shared/package.json pnpm-lock.yaml
 git commit -m "$(cat <<'EOF'
 feat(shared): Car/RequestSummary/RequestDetail shapes + carInputSchema
 
