@@ -1027,9 +1027,15 @@ Document-only — record results when a real token is configured (not part of th
 5. Admin (telegram id in `ADMIN_TELEGRAM_IDS`) receives the "Новый сервис на модерации" message.
 6. `/start` as that service again → "⏳ на модерации" (no menu until verified).
 7. `/language` → switch to Հայերեն → menu re-renders in Armenian.
-8. `/cancel` mid-wizard → "Действие отменено"; `/cancel` with nothing active → "Нет активных действий".
+8. `/cancel` mid-wizard at a **button** step (district/specs/photos) → "Действие отменено"; `/cancel` with nothing active → "Нет активных действий".
 9. DB check: `psql` or Prisma — `ServiceProfile` row exists with `isVerified=false`, correct `specializations[]`, `photos[]`.
 10. Ban a user (`UPDATE users SET is_banned=true`) → their next bot message → "🚫 Доступ заблокирован"; their `GET /api/me` → HTTP 403 `{"error":"banned"}`.
+
+**Known MVP caveats (final-review Minor items — documented, not blocking; revisit in Phase 6 Polish):**
+- **`/cancel` at a *text* step** (name/address/phone) is consumed by the conversation as the field value, NOT routed to the `/cancel` command (grammY-conversations footgun: `askText` uses bare `conversation.wait()`). It works at button steps (where `waitForCallbackQuery` skips non-matching updates downstream). QA: test `/cancel` at button steps; expect text-step `/cancel` to be captured as input until Phase 6.
+- **Typed text at a button step** (district/specs) falls through to the `message` fallback → `showMenu` re-renders the SERVICE prompt while the wizard stays parked at the same step; tapping a valid button then resumes correctly. Recoverable; rough edge only.
+- **`escapeMd`** covers legacy-Markdown control chars (`* _ \` [ ]`); benign and consistent with Phase-0 convention. MUST be expanded if `parse_mode` ever switches to `MarkdownV2`.
+- **`UserProfile.language`** shared contract is `'ru'|'hy'` but the runtime JSON value is Prisma `String` (intentional, accepted in Task 1 Step 3).
 
 ---
 
