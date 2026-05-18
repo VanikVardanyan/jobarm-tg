@@ -98,6 +98,19 @@ export const CAR_MAKES: string[] = [
 ]
 
 // ===== API shapes =====
+export interface ServiceProfileSummary {
+  id: string
+  name: string
+  description: string | null
+  address: string
+  district: string
+  phoneNumber: string
+  specializations: ServiceType[]
+  photos: string[]
+  isVerified: boolean
+  isActive: boolean
+}
+
 export interface UserProfile {
   id: string
   telegramId: string
@@ -109,4 +122,5 @@ export interface UserProfile {
   language: Language
   isAdmin: boolean
   isBanned: boolean
+  service: ServiceProfileSummary | null
 }
