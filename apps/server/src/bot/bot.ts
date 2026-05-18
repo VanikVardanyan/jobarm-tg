@@ -1,24 +1,42 @@
-import { Bot } from 'grammy'
+import { Bot, session } from 'grammy'
+import { conversations, createConversation } from '@grammyjs/conversations'
 import { config } from '../config.js'
-import { db } from '../db.js'
+import type { BotContext } from './context.js'
+import { redisStorage } from './session.js'
+import { loadUser, banGate } from './middleware.js'
+import { startHandler, showMenu } from './handlers/start.js'
+import { miscHandler } from './handlers/misc.js'
+import { registerService, REGISTER_SERVICE } from './conversations/registerService.js'
 
-export const bot = new Bot(config.BOT_TOKEN)
+export const bot = new Bot<BotContext>(config.BOT_TOKEN)
 
-bot.command('start', async (ctx) => {
-  const from = ctx.from
-  if (!from) return
-  const telegramId = String(from.id)
-  const chatId = String(ctx.chat?.id ?? from.id)
-  try {
-    await db.user.update({ where: { telegramId }, data: { chatId } })
-  } catch {
-    // Not registered yet — the Mini App auth flow will create the user.
-  }
-  await ctx.reply('🚗 Авто-сервис маркетплейс', {
-    reply_markup: {
-      inline_keyboard: [[{ text: '🚀 Открыть', web_app: { url: config.MINI_APP_URL } }]],
-    },
+// Session (Redis) is required by the conversations plugin.
+bot.use(
+  session({
+    initial: () => ({}),
+    storage: redisStorage(),
   })
+)
+
+// loadUser/banGate must run before conversations so ctx.dbUser exists inside them.
+bot.use(loadUser)
+bot.use(banGate)
+
+bot.use(conversations())
+bot.use(createConversation(registerService, REGISTER_SERVICE))
+
+// Enter the registration wizard from the service "register" button.
+bot.callbackQuery('menu:register_service', async (ctx) => {
+  await ctx.answerCallbackQuery()
+  await ctx.conversation.enter(REGISTER_SERVICE)
+})
+
+bot.use(startHandler)
+bot.use(miscHandler)
+
+// Fallback: any other message → show the menu.
+bot.on('message', async (ctx) => {
+  await showMenu(ctx)
 })
 
 bot.catch((err) => {
@@ -35,4 +53,10 @@ export async function configureBotMenu(): Promise<void> {
       '⭐ Рейтинги и отзывы. Всё внутри Telegram.'
   )
   await bot.api.setMyShortDescription('Автосервисы Армении')
+  await bot.api.setMyCommands([
+    { command: 'start', description: 'Начало / меню' },
+    { command: 'language', description: 'Сменить язык' },
+    { command: 'cancel', description: 'Отменить действие' },
+    { command: 'help', description: 'Помощь' },
+  ])
 }

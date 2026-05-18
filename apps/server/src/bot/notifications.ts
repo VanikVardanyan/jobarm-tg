@@ -1,10 +1,12 @@
-import type { Bot } from 'grammy'
+import type { Bot, Context } from 'grammy'
 import { db } from '../db.js'
 import { config } from '../config.js'
 
-let _bot: Bot | null = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _bot: Bot<any> | null = null
 
-export function initNotifications(bot: Bot): void {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function initNotifications(bot: Bot<any>): void {
   _bot = bot
 }
 
