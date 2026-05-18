@@ -14,6 +14,7 @@
 - Reference data (districts, service types, urgency, car makes) lives as **static constants in `packages/shared`**, not DB tables — Mini App imports them directly (workspace), no reference API endpoints.
 - The shared package keeps its existing name `@jobbarm/shared` — renaming would ripple through both `package.json` files and every import for zero functional gain.
 - No automated tests (per `SPEC_AUTO.md` instruction #7). Verification is typecheck/build/migrate/boot.
+- **Root `engines.node` tightened `>=20` → `>=20.6`** (Task 6 code review): Task 6's `tsx --env-file=.env` requires Node ≥ 20.6; the looser constraint would let a literal-follower on 20.0–20.5 hit a cryptic `bad option: --env-file`.
 - **Schema hardened after Task 2 code review** (single baseline migration regenerated, not stacked): added `@@index([carId])` on `Request` (avoids full scan on `Restrict` car delete), `@@unique([requestId, authorId])` + `@@index([authorId])` on `Review` (prevents duplicate reviews inflating ratings; supports "my reviews"), and `updatedAt @updatedAt` on `ServiceProfile`/`Car`/`Request`/`Offer`/`Review` (free, avoids a later migration). `Review.rating` 1–5 is validated in **Zod at feature-phase routes** (Prisma has no native CHECK) — not a DB constraint by design.
 
 **Reference:** `docs/superpowers/specs/2026-05-18-auto-service-marketplace-design.md`, `SPEC_AUTO.md`.
