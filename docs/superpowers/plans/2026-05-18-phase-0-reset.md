@@ -24,6 +24,7 @@
 
 **Created:**
 - `docker-compose.override.yml` — local dev: publish Postgres/Redis ports
+- `apps/server/.env` — gitignored symlink → root `.env` (host Prisma/tsx env loading)
 - `apps/server/src/routes/me.ts` — `GET/PUT /api/me`
 
 **Modified (full replacement):**
@@ -834,12 +835,52 @@ git commit -m "feat: strip JobArm routes; add minimal /api/me; delete tests"
 
 ---
 
-## Task 6: Rewrite the seed
+## Task 6: Local env loading + rewrite the seed
+
+**Why the env step:** Prisma CLI and `tsx` run with cwd `apps/server`, so they do
+not pick up the repo-root `.env` (the Task 2 implementer had to inject
+`DATABASE_URL` manually). Fix it once here so Task 6 (seed) and Task 9 (boot)
+work with the documented commands.
 
 **Files:**
+- Create: `apps/server/.env` (symlink → `../../.env`; gitignored by the existing `.env` rule)
+- Modify: `apps/server/package.json` (scripts)
 - Modify (replace): `apps/server/prisma/seed.ts`
 
-- [ ] **Step 1: Replace `apps/server/prisma/seed.ts`**
+- [ ] **Step 1: Symlink the root .env into the server package**
+
+Run:
+```bash
+ln -sf ../../.env "apps/server/.env"
+git check-ignore "apps/server/.env"
+```
+Expected: `git check-ignore` prints `apps/server/.env` (already ignored by the
+root `.gitignore` `.env` rule — it must NOT be committed). Prisma CLI run from
+`apps/server` now auto-loads it.
+
+- [ ] **Step 2: Update `apps/server/package.json` scripts to load the env file**
+
+In `apps/server/package.json`, change the `prisma.seed` field and the `dev` /
+`db:seed` scripts to pass Node's `--env-file` (cwd is `apps/server`, so `.env`
+is the symlink from Step 1). Replace the `"prisma"` and `"scripts"` blocks with:
+
+```json
+  "prisma": {
+    "seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/main.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+```
+
+(Leave `name`, `version`, `type`, `dependencies`, `devDependencies` exactly as they are.)
+
+- [ ] **Step 3: Replace `apps/server/prisma/seed.ts`**
 
 ```ts
 import { PrismaClient } from '@prisma/client'
@@ -895,16 +936,18 @@ async function main() {
 main().finally(() => prisma.$disconnect())
 ```
 
-- [ ] **Step 2: Run the seed**
+- [ ] **Step 4: Run the seed**
 
 Run: `pnpm --filter server db:seed`
-Expected: prints `Seeded test users: { client: '<uuid>', service: '<uuid>' }`, exits 0.
+Expected: prints `Seeded test users: { client: '<uuid>', service: '<uuid>' }`, exits 0 (no manual `export DATABASE_URL` needed — the `--env-file=.env` symlink supplies it).
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 5: Commit**
+
+`apps/server/.env` is a gitignored symlink — do NOT commit it.
 
 ```bash
-git add apps/server/prisma/seed.ts
-git commit -m "feat: seed test client + verified service for local dev"
+git add apps/server/prisma/seed.ts apps/server/package.json
+git commit -m "feat: local env loading (--env-file symlink) + seed test users"
 ```
 
 ---
@@ -1180,11 +1223,14 @@ Expected: `postgres` and `redis` both `Up`. If not: `docker compose up -d postgr
 
 - [ ] **Step 3: Apply migrations + seed fresh**
 
+Precondition: the `apps/server/.env` symlink from Task 6 Step 1 exists (Prisma
+CLI run from `apps/server` auto-loads it; `db.seed` uses `--env-file=.env`).
+
 Run:
 ```bash
 pnpm --filter server exec prisma migrate reset --force
 ```
-Expected: drops & recreates schema, applies the `init_auto_service` migration, runs the seed (`Seeded test users: ...`).
+Expected: drops & recreates schema, applies the `init_auto_service` migration, runs the seed (`Seeded test users: ...`) — no manual `export DATABASE_URL`.
 
 - [ ] **Step 4: Build shared, typecheck server, build web**
 
