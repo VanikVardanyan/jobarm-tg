@@ -3,6 +3,7 @@ import jwt from '@fastify/jwt'
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { createHmac } from 'crypto'
 import { config } from '../config.js'
+import { db } from '../db.js'
 
 export function validateTelegramInitData(initData: string, botToken: string): Record<string, string> | null {
   try {
@@ -48,5 +49,12 @@ export default fp(async (app: FastifyInstance) => {
 
   app.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
     await request.jwtVerify()
+    const { userId } = request.user
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { isBanned: true },
+    })
+    if (!user) return reply.status(404).send({ error: 'not_found' })
+    if (user.isBanned) return reply.status(403).send({ error: 'banned' })
   })
 })
