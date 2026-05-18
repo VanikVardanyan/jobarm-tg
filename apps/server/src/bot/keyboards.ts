@@ -68,7 +68,7 @@ export function photosKeyboard(lang: Language): InlineKeyboard {
     .text(t(lang, 'regPhotosDone'), 'photos:done')
 }
 
-// Single-select service type for a request (one tap → spec:<key>).
+// Single-select service type for a request (one tap → rqsvc:<key>).
 export function serviceTypeKeyboard(lang: Language): InlineKeyboard {
   const kb = new InlineKeyboard()
   SERVICE_TYPES.forEach((s, i) => {

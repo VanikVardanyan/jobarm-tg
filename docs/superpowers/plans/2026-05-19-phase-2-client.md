@@ -507,7 +507,7 @@ import { SERVICE_TYPES, DISTRICTS, URGENCIES, CAR_MAKES, localizedLabel } from '
 - [ ] **Step 1b: Append to the end of `apps/server/src/bot/keyboards.ts` EXACTLY:**
 
 ```ts
-// Single-select service type for a request (one tap → spec:<key>).
+// Single-select service type for a request (one tap → rqsvc:<key>).
 export function serviceTypeKeyboard(lang: Language): InlineKeyboard {
   const kb = new InlineKeyboard()
   SERVICE_TYPES.forEach((s, i) => {
