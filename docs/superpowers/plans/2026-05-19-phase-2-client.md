@@ -416,8 +416,6 @@ Add the keys below into the `ru` dict (before its closing `}`) and the mirrored 
   reqServiceType: 'Какая нужна услуга?',
   reqDescription: 'Опишите проблему текстом:',
   reqPhotos: 'Пришлите 1–5 фото или нажмите «Пропустить».',
-  reqPhotosSkip: 'Пропустить',
-  reqPhotosDone: 'Готово',
   reqPhotosMore: 'Фото добавлено ({n}/5). Ещё или «Готово».',
   reqVoice: 'Можно добавить голосовое сообщение с описанием — пришлите его или нажмите «Пропустить».',
   reqVoiceSkip: 'Пропустить',
@@ -451,8 +449,6 @@ Add the keys below into the `ru` dict (before its closing `}`) and the mirrored 
   reqServiceType: 'Ի՞նչ ծառայություն է պետք։',
   reqDescription: 'Նկարագրեք խնդիրը տեքստով՝',
   reqPhotos: 'Ուղարկեք 1–5 լուսանկար կամ սեղմեք «Բաց թողնել»։',
-  reqPhotosSkip: 'Բաց թողնել',
-  reqPhotosDone: 'Պատրաստ է',
   reqPhotosMore: 'Լուսանկարն ավելացվեց ({n}/5)։ Ավելին կամ «Պատրաստ է»։',
   reqVoice: 'Կարող եք ավելացնել ձայնային հաղորդագրություն նկարագրությամբ — ուղարկեք այն կամ սեղմեք «Բաց թողնել»։',
   reqVoiceSkip: 'Բաց թողնել',
@@ -474,7 +470,7 @@ Add the keys below into the `ru` dict (before its closing `}`) and the mirrored 
 - [ ] **Step 3: Typecheck + non-ASCII sanity**
 
 Run: `pnpm --filter server exec tsc --noEmit && grep -c 'reqPickCar\|reqConfirm\|reqCreated' apps/server/src/bot/i18n.ts`
-Expected: tsc exit 0; grep prints `6` (3 keys × ru+hy). Visually confirm no `?`/mojibake near the new Armenian lines.
+Expected: tsc exit 0; grep prints `10` (`reqPickCar`×2 + `reqConfirm`/`reqConfirmYes`/`reqConfirmNo`×2 + `reqCreated`×2, across ru+hy). Visually confirm no `?`/mojibake near the new Armenian lines.
 
 - [ ] **Step 4: Commit**
 
