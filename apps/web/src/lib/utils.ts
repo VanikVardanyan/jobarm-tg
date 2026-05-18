@@ -6,16 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(iso: string, lang: string): string {
-  return new Date(iso).toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', {
+  return new Date(iso).toLocaleDateString(lang === 'hy' ? 'hy-AM' : 'ru-RU', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
 }
 
-export function formatBudget(amount: number, lang = 'ru'): string {
-  if (!amount) {
-    return lang === 'hy' ? 'Պայմանավորվող' : lang === 'en' ? 'Negotiable' : 'Договорная'
-  }
+export function formatAmount(amount: number): string {
   return `${amount.toLocaleString('ru-RU')} ֏`
 }
