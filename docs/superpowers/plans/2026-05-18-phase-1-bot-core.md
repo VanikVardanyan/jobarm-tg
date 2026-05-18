@@ -713,13 +713,26 @@ git commit -m "feat(bot): /help, /language, /cancel, menu-callback stubs"
 ## Task 9: Service registration conversation
 
 **Files:**
+- Modify: `apps/server/src/bot/notifications.ts` (export `escapeMd` so the conversation can escape user input before it flows into a `parse_mode:Markdown` admin message)
 - Create: `apps/server/src/bot/conversations/registerService.ts`
 
 grammY conversations v1 replays the function on every update, so all side
 effects (DB writes, admin notification) MUST be wrapped in
 `conversation.external()`. Inputs are awaited via `conversation.wait*`.
 
-- [ ] **Step 1: Create `apps/server/src/bot/conversations/registerService.ts` with EXACTLY**
+**Markdown-injection note:** `notifyAdmins(text)` sends with `parse_mode: 'Markdown'`
+and does NOT escape (by design — caller owns escaping, same as Phase 0's
+`notifyAdminsNewUser`). The `adminNewService` template interpolates raw
+user-supplied `name`/`address`/`phone`, so those MUST be passed through
+`escapeMd` (`district`/`specs` come from controlled `DISTRICTS`/`SERVICE_TYPES`
+lookups and are safe).
+
+- [ ] **Step 1: Export `escapeMd` from `apps/server/src/bot/notifications.ts`**
+
+Change the line `function escapeMd(text: string): string {` to
+`export function escapeMd(text: string): string {`. Change nothing else in the file.
+
+- [ ] **Step 2: Create `apps/server/src/bot/conversations/registerService.ts` with EXACTLY**
 
 ```ts
 import type { BotContext, BotConversation } from '../context.js'
@@ -728,7 +741,7 @@ import { t } from '../i18n.js'
 import type { Language, ServiceType } from '@jobbarm/shared'
 import { SERVICE_TYPES, DISTRICTS, localizedLabel } from '@jobbarm/shared'
 import { districtKeyboard, specsKeyboard, photosKeyboard } from '../keyboards.js'
-import { notifyAdmins } from '../notifications.js'
+import { notifyAdmins, escapeMd } from '../notifications.js'
 
 export const REGISTER_SERVICE = 'registerService'
 
@@ -849,10 +862,10 @@ export async function registerService(
       .join(', ')
     await notifyAdmins(
       t('ru', 'adminNewService', {
-        name,
+        name: escapeMd(name),
         district: distText,
-        address,
-        phone: phoneNumber,
+        address: escapeMd(address),
+        phone: escapeMd(phoneNumber),
         specs: specsText,
       })
     )
@@ -862,16 +875,16 @@ export async function registerService(
 }
 ```
 
-- [ ] **Step 2: Typecheck server**
+- [ ] **Step 3: Typecheck server**
 
 Run: `pnpm --filter @jobbarm/shared build && pnpm --filter server exec tsc --noEmit`
 Expected: exit 0, no output.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add apps/server/src/bot/conversations/registerService.ts
-git commit -m "feat(bot): service-registration conversation (wizard + moderation notify)"
+git add apps/server/src/bot/notifications.ts apps/server/src/bot/conversations/registerService.ts
+git commit -m "feat(bot): service-registration conversation (wizard + moderation notify, escaped)"
 ```
 
 ---
