@@ -679,7 +679,7 @@ git commit -m "feat: swap Telegram bot library telegraf -> grammY (minimal boots
 - Delete: `apps/server/src/routes/{jobs,masters,applications,categories,reviews,notifications,users,admin}.ts`
 - Delete: `apps/server/tests/` (whole dir)
 - Create: `apps/server/src/routes/me.ts`
-- Modify (replace): `apps/server/src/routes/auth.ts`, `apps/server/src/app.ts`, `apps/server/tsconfig.json`
+- Modify (replace): `apps/server/src/routes/auth.ts`, `apps/server/src/app.ts`, `apps/server/tsconfig.json`, `apps/server/prisma/seed.ts` (tsconfig includes `prisma/`; the stale JobArm seed must be replaced so the Step 7 typecheck passes)
 
 - [ ] **Step 1: Delete JobArm route files and the tests dir**
 
@@ -819,68 +819,12 @@ Replace the file with:
 }
 ```
 
-- [ ] **Step 6: Typecheck the server**
+- [ ] **Step 6: Replace `apps/server/prisma/seed.ts`**
 
-Run: `pnpm --filter server exec tsc --noEmit`
-Expected: exits 0, no output. (If `prisma generate` was skipped earlier, run `pnpm --filter server exec prisma generate` first.)
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add apps/server/src/routes apps/server/src/app.ts apps/server/tsconfig.json
-git rm -r --cached apps/server/tests 2>/dev/null || true
-git add -A apps/server
-git commit -m "feat: strip JobArm routes; add minimal /api/me; delete tests"
-```
-
----
-
-## Task 6: Local env loading + rewrite the seed
-
-**Why the env step:** Prisma CLI and `tsx` run with cwd `apps/server`, so they do
-not pick up the repo-root `.env` (the Task 2 implementer had to inject
-`DATABASE_URL` manually). Fix it once here so Task 6 (seed) and Task 9 (boot)
-work with the documented commands.
-
-**Files:**
-- Create: `apps/server/.env` (symlink → `../../.env`; gitignored by the existing `.env` rule)
-- Modify: `apps/server/package.json` (scripts)
-- Modify (replace): `apps/server/prisma/seed.ts`
-
-- [ ] **Step 1: Symlink the root .env into the server package**
-
-Run:
-```bash
-ln -sf ../../.env "apps/server/.env"
-git check-ignore "apps/server/.env"
-```
-Expected: `git check-ignore` prints `apps/server/.env` (already ignored by the
-root `.gitignore` `.env` rule — it must NOT be committed). Prisma CLI run from
-`apps/server` now auto-loads it.
-
-- [ ] **Step 2: Update `apps/server/package.json` scripts to load the env file**
-
-In `apps/server/package.json`, change the `prisma.seed` field and the `dev` /
-`db:seed` scripts to pass Node's `--env-file` (cwd is `apps/server`, so `.env`
-is the symlink from Step 1). Replace the `"prisma"` and `"scripts"` blocks with:
-
-```json
-  "prisma": {
-    "seed": "tsx --env-file=.env prisma/seed.ts"
-  },
-  "scripts": {
-    "dev": "tsx watch --env-file=.env src/main.ts",
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx --env-file=.env prisma/seed.ts"
-  },
-```
-
-(Leave `name`, `version`, `type`, `dependencies`, `devDependencies` exactly as they are.)
-
-- [ ] **Step 3: Replace `apps/server/prisma/seed.ts`**
+`tsconfig.json` includes `prisma/`, so `prisma/seed.ts` is type-checked. The
+old JobArm seed references the removed `prisma.category` model and would fail
+the Step 7 typecheck. Replace it now with the final Auto Service seed (this is
+the intended end state — Task 6 only runs it, no further rewrite):
 
 ```ts
 import { PrismaClient } from '@prisma/client'
@@ -936,18 +880,80 @@ async function main() {
 main().finally(() => prisma.$disconnect())
 ```
 
-- [ ] **Step 4: Run the seed**
+- [ ] **Step 7: Typecheck the server**
+
+Run: `pnpm --filter server exec tsc --noEmit`
+Expected: exits 0, no output. (If it errors that the Prisma client is missing, run `pnpm --filter server exec prisma generate` first; it should already be generated from Task 2.)
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add apps/server/src/routes apps/server/src/app.ts apps/server/tsconfig.json apps/server/prisma/seed.ts
+git rm -r --cached apps/server/tests 2>/dev/null || true
+git add -A apps/server
+git commit -m "feat: strip JobArm routes; add minimal /api/me; new-schema seed; delete tests"
+```
+
+---
+
+## Task 6: Local env loading + run the seed
+
+**Why the env step:** Prisma CLI and `tsx` run with cwd `apps/server`, so they do
+not pick up the repo-root `.env` (the Task 2 implementer had to inject
+`DATABASE_URL` manually). Fix it once here so the seed and Task 9 (boot) work
+with the documented commands. (The seed FILE was already written in Task 5
+Step 6 — Task 6 only configures env loading and runs it.)
+
+**Files:**
+- Create: `apps/server/.env` (symlink → `../../.env`; gitignored by the existing `.env` rule)
+- Modify: `apps/server/package.json` (scripts)
+
+- [ ] **Step 1: Symlink the root .env into the server package**
+
+Run:
+```bash
+ln -sf ../../.env "apps/server/.env"
+git check-ignore "apps/server/.env"
+```
+Expected: `git check-ignore` prints `apps/server/.env` (already ignored by the
+root `.gitignore` `.env` rule — it must NOT be committed). Prisma CLI run from
+`apps/server` now auto-loads it.
+
+- [ ] **Step 2: Update `apps/server/package.json` scripts to load the env file**
+
+In `apps/server/package.json`, change the `prisma.seed` field and the `dev` /
+`db:seed` scripts to pass Node's `--env-file` (cwd is `apps/server`, so `.env`
+is the symlink from Step 1). Replace the `"prisma"` and `"scripts"` blocks with:
+
+```json
+  "prisma": {
+    "seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/main.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+```
+
+(Leave `name`, `version`, `type`, `dependencies`, `devDependencies` exactly as they are.)
+
+- [ ] **Step 3: Run the seed**
 
 Run: `pnpm --filter server db:seed`
 Expected: prints `Seeded test users: { client: '<uuid>', service: '<uuid>' }`, exits 0 (no manual `export DATABASE_URL` needed — the `--env-file=.env` symlink supplies it).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
-`apps/server/.env` is a gitignored symlink — do NOT commit it.
+`apps/server/.env` is a gitignored symlink — do NOT commit it. The seed FILE was
+already committed in Task 5; this commit is only the env-loading script change.
 
 ```bash
-git add apps/server/prisma/seed.ts apps/server/package.json
-git commit -m "feat: local env loading (--env-file symlink) + seed test users"
+git add apps/server/package.json
+git commit -m "feat: local env loading via --env-file=.env symlink"
 ```
 
 ---
