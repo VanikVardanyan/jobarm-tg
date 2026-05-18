@@ -602,6 +602,11 @@ startHandler.command('start', async (ctx) => {
 })
 
 startHandler.callbackQuery(/^role:(CLIENT|SERVICE)$/, async (ctx) => {
+  // Role is fixed once set (design §7); ignore taps on stale role keyboards.
+  if (ctx.dbUser.role) {
+    await ctx.answerCallbackQuery()
+    return
+  }
   const role = ctx.match![1] as 'CLIENT' | 'SERVICE'
   const updated = await db.user.update({
     where: { id: ctx.dbUser.id },
