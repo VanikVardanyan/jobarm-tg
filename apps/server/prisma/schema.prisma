@@ -7,129 +7,180 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  CLIENT
+  SERVICE
+
+  @@map("user_role")
+}
+
+enum ServiceType {
+  BODY_PAINT
+  ENGINE_CHASSIS
+  MAINTENANCE
+  TIRES
+  ELECTRICAL
+  AC
+  GLASS
+  INTERIOR
+  OTHER
+
+  @@map("service_type")
+}
+
+enum Urgency {
+  URGENT
+  THIS_WEEK
+  NORMAL
+
+  @@map("urgency")
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+
+  @@map("request_status")
+}
+
 model User {
-  id              String         @id @default(uuid())
-  telegramId      String         @unique @map("telegram_id")
+  id              String          @id @default(uuid())
+  telegramId      String          @unique @map("telegram_id")
   username        String?
-  avatarUrl       String?        @map("avatar_url")
-  name            String
-  phone           String?
-  language        String         @default("ru")
-  isMaster        Boolean        @default(false) @map("is_master")
-  isCustomer      Boolean        @default(true) @map("is_customer")
-  isAdmin         Boolean        @default(false) @map("is_admin")
-  isBanned        Boolean        @default(false) @map("is_banned")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-  chatId          String?        @map("chat_id")
-  applications    Application[]
-  jobsAsCustomer  Job[]          @relation("CustomerJobs")
-  selectedInJobs  Job[]          @relation("SelectedMaster")
-  reviewsGiven    Review[]       @relation("CustomerReviews")
-  reviewsReceived Review[]       @relation("MasterReviews")
-  categories      UserCategory[]
-  notifications   Notification[]
+  firstName       String?         @map("first_name")
+  lastName        String?         @map("last_name")
+  phoneNumber     String?         @map("phone_number")
+  role            UserRole?
+  language        String          @default("ru")
+  isAdmin         Boolean         @default(false) @map("is_admin")
+  isBanned        Boolean         @default(false) @map("is_banned")
+  chatId          String?         @map("chat_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  cars            Car[]
+  requests        Request[]       @relation("ClientRequests")
+  service         ServiceProfile?
+  offers          Offer[]
+  receivedReviews Review[]        @relation("ReviewedService")
+  givenReviews    Review[]        @relation("ReviewAuthor")
 
   @@map("users")
 }
 
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  kind      String
-  title     String
-  body      String
-  jobId     String?  @map("job_id")
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model ServiceProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  address         String
+  district        String
+  phoneNumber     String   @map("phone_number")
+  latitude        Float?
+  longitude       Float?
+  specializations String[]
+  workingHours    Json?    @map("working_hours")
+  isVerified      Boolean  @default(false) @map("is_verified")
+  isActive        Boolean  @default(true) @map("is_active")
+  photos          String[]
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  @@index([userId, createdAt])
-  @@map("notifications")
+  @@index([district, isVerified, isActive])
+  @@map("service_profiles")
 }
 
-model Category {
-  id     String         @id @default(uuid())
-  nameRu String         @map("name_ru")
-  nameEn String         @unique @map("name_en")
-  nameHy String         @default("") @map("name_hy")
-  jobs   Job[]
-  users  UserCategory[]
+model Car {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  make         String
+  model        String
+  year         Int
+  bodyType     String?   @map("body_type")
+  color        String?
+  licensePlate String?   @map("license_plate")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  @@map("categories")
+  requests     Request[]
+
+  @@index([userId])
+  @@map("cars")
 }
 
-model UserCategory {
-  userId     String   @map("user_id")
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Request {
+  id              String        @id @default(uuid())
+  clientId        String        @map("client_id")
+  client          User          @relation("ClientRequests", fields: [clientId], references: [id])
+  carId           String        @map("car_id")
+  car             Car           @relation(fields: [carId], references: [id])
+  serviceType     ServiceType   @map("service_type")
+  description     String
+  voiceFileId     String?       @map("voice_file_id")
+  photos          String[]
+  district        String
+  urgency         Urgency       @default(NORMAL)
+  isDrivable      Boolean       @default(true) @map("is_drivable")
+  status          RequestStatus @default(OPEN)
+  selectedOfferId String?       @unique @map("selected_offer_id")
+  selectedOffer   Offer?        @relation("SelectedOffer", fields: [selectedOfferId], references: [id])
+  reminderSentAt  DateTime?     @map("reminder_sent_at")
+  selectedAt      DateTime?     @map("selected_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  expiresAt       DateTime      @map("expires_at")
 
-  @@id([userId, categoryId])
-  @@map("user_categories")
+  offers          Offer[]       @relation("RequestOffers")
+  reviews         Review[]
+
+  @@index([district, status])
+  @@index([clientId])
+  @@index([carId])
+  @@map("requests")
 }
 
-model Job {
-  id                String        @id @default(uuid())
-  customerId        String        @map("customer_id")
-  categoryId        String        @map("category_id")
-  description       String
-  budget            Int
-  dateFrom          DateTime      @map("date_from") @db.Date
-  dateTo            DateTime      @map("date_to") @db.Date
-  selectedMasterId  String?       @map("selected_master_id")
-  masterConfirmed   Boolean       @default(false) @map("master_confirmed")
-  customerConfirmed Boolean       @default(false) @map("customer_confirmed")
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
-  status            JobStatus     @default(new)
-  applications      Application[]
-  category          Category      @relation(fields: [categoryId], references: [id])
-  customer          User          @relation("CustomerJobs", fields: [customerId], references: [id])
-  selectedMaster    User?         @relation("SelectedMaster", fields: [selectedMasterId], references: [id])
-  review            Review?
+model Offer {
+  id            String   @id @default(uuid())
+  requestId     String   @map("request_id")
+  request       Request  @relation("RequestOffers", fields: [requestId], references: [id], onDelete: Cascade)
+  serviceId     String   @map("service_id")
+  service       User     @relation(fields: [serviceId], references: [id])
+  price         Int
+  priceMax      Int?     @map("price_max")
+  comment       String?
+  duration      String?
+  examplePhotos String[] @map("example_photos")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  @@index([categoryId, status])
-  @@index([customerId])
-  @@map("jobs")
-}
+  selectedFor   Request? @relation("SelectedOffer")
 
-model Application {
-  id        String   @id @default(uuid())
-  jobId     String   @map("job_id")
-  masterId  String   @map("master_id")
-  comment   String?
-  createdAt DateTime @default(now()) @map("created_at")
-  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  master    User     @relation(fields: [masterId], references: [id])
-
-  @@unique([jobId, masterId])
-  @@index([masterId])
-  @@map("applications")
+  @@unique([requestId, serviceId])
+  @@index([serviceId])
+  @@map("offers")
 }
 
 model Review {
-  id         String   @id @default(uuid())
-  jobId      String   @unique @map("job_id")
-  masterId   String   @map("master_id")
-  customerId String   @map("customer_id")
-  rating     Int
-  comment    String?
-  createdAt  DateTime @default(now()) @map("created_at")
-  customer   User     @relation("CustomerReviews", fields: [customerId], references: [id])
-  job        Job      @relation(fields: [jobId], references: [id])
-  master     User     @relation("MasterReviews", fields: [masterId], references: [id])
+  id        String   @id @default(uuid())
+  requestId String   @map("request_id")
+  request   Request  @relation(fields: [requestId], references: [id])
+  authorId  String   @map("author_id")
+  author    User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  serviceId String   @map("service_id")
+  service   User     @relation("ReviewedService", fields: [serviceId], references: [id])
+  rating    Int
+  text      String?
+  photos    String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([masterId])
-  @@index([customerId])
+  @@unique([requestId, authorId])
+  @@index([serviceId])
+  @@index([authorId])
   @@map("reviews")
-}
-
-enum JobStatus {
-  new
-  in_progress
-  pending_confirmation
-  completed
-
-  @@map("job_status")
 }
