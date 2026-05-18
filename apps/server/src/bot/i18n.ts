@@ -41,7 +41,7 @@ const ru: Dict = {
   regPhotosMore: 'Фото добавлено ({n}/5). Ещё или «Готово».',
   regDone: '✅ Заявка на регистрацию отправлена. Сервис на модерации — мы уведомим вас.',
   regAbortNoText: 'Ожидался текст. Регистрация отменена, начните заново через меню.',
-  adminNewService: '🆕 *Новый сервис на модерации*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}',
+  adminNewService: '🆕 *Новый сервис на модерации*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}\n📝 {description}',
 }
 
 const hy: Dict = {
@@ -83,7 +83,7 @@ const hy: Dict = {
   regPhotosMore: 'Լուսանկարն ավելացվեց ({n}/5)։ Ավելին կամ «Պատրաստ է»։',
   regDone: '✅ Գրանցման հայտն ուղարկվեց։ Սերվիսը մոդերացիայի մեջ է — կտեղեկացնենք։',
   regAbortNoText: 'Սպասվում էր տեքստ։ Գրանցումը չեղարկվեց, սկսեք նորից մենյուից։',
-  adminNewService: '🆕 *Նոր սերվիս մոդերացիայի*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}',
+  adminNewService: '🆕 *Նոր սերվիս մոդերացիայի*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}\n📝 {description}',
 }
 
 const dicts: Record<Language, Dict> = { ru, hy }
