@@ -52,13 +52,13 @@ startHandler.callbackQuery(/^role:(CLIENT|SERVICE)$/, async (ctx) => {
     await ctx.answerCallbackQuery()
     return
   }
+  await ctx.answerCallbackQuery()
   const role = ctx.match![1] as 'CLIENT' | 'SERVICE'
   const updated = await db.user.update({
     where: { id: ctx.dbUser.id },
     data: { role },
   })
   ctx.dbUser = updated
-  await ctx.answerCallbackQuery()
   const lang = (updated.language as Language) ?? 'ru'
   if (role === 'CLIENT') {
     await ctx.reply(t(lang, 'roleSetClient'))

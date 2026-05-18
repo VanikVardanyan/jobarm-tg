@@ -31,13 +31,13 @@ miscHandler.command('cancel', async (ctx) => {
 })
 
 miscHandler.callbackQuery(/^lang:(ru|hy)$/, async (ctx) => {
+  await ctx.answerCallbackQuery()
   const next = ctx.match![1] as Language
   const updated = await db.user.update({
     where: { id: ctx.dbUser.id },
     data: { language: next },
   })
   ctx.dbUser = updated
-  await ctx.answerCallbackQuery()
   await ctx.reply(t(next, 'languageSet'))
   await showMenu(ctx)
 })
