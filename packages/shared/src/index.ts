@@ -124,3 +124,49 @@ export interface UserProfile {
   isBanned: boolean
   service: ServiceProfileSummary | null
 }
+
+// ===== Phase 2: cars + requests =====
+import { z } from 'zod'
+
+export const CURRENT_YEAR = new Date().getFullYear()
+
+export const carInputSchema = z.object({
+  make: z.string().trim().min(1).max(40),
+  model: z.string().trim().min(1).max(40),
+  year: z.coerce.number().int().min(1950).max(CURRENT_YEAR + 1),
+  bodyType: z.string().trim().max(40).optional().nullable(),
+  color: z.string().trim().max(40).optional().nullable(),
+  licensePlate: z.string().trim().max(20).optional().nullable(),
+})
+export type CarInput = z.infer<typeof carInputSchema>
+
+export interface Car {
+  id: string
+  make: string
+  model: string
+  year: number
+  bodyType: string | null
+  color: string | null
+  licensePlate: string | null
+  createdAt: string
+}
+
+export interface RequestSummary {
+  id: string
+  serviceType: ServiceType
+  description: string
+  district: string
+  urgency: Urgency
+  status: RequestStatus
+  photosCount: number
+  hasVoice: boolean
+  createdAt: string
+  expiresAt: string
+  car: { make: string; model: string; year: number }
+}
+
+export interface RequestDetail extends RequestSummary {
+  isDrivable: boolean
+  photos: string[]
+  voiceFileId: string | null
+}
