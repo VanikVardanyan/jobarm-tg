@@ -551,6 +551,11 @@ export function initNotifications(bot: Bot): void {
   _bot = bot
 }
 
+// Escape user-supplied text for Telegram legacy Markdown.
+function escapeMd(text: string): string {
+  return text.replace(/[*_`[\]]/g, (ch) => `\\${ch}`)
+}
+
 export async function notify(
   telegramId: string,
   text: string,
@@ -587,28 +592,32 @@ export async function notifyAdmins(text: string): Promise<void> {
 }
 
 export async function notifyAdminsNewUser(userId: string): Promise<void> {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: {
-      firstName: true,
-      lastName: true,
-      username: true,
-      telegramId: true,
-      phoneNumber: true,
-      language: true,
-      role: true,
-    },
-  })
-  if (!user) return
-  const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'User'
-  const text =
-    `🆕 *Новый пользователь*\n\n` +
-    `👤 ${name}\n` +
-    (user.username ? `🆔 @${user.username}\n` : '') +
-    (user.phoneNumber ? `📞 ${user.phoneNumber}\n` : '') +
-    `🌐 ${user.language} · ${user.role ?? 'роль не выбрана'}\n` +
-    `tg id: \`${user.telegramId}\``
-  await notifyAdmins(text)
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        firstName: true,
+        lastName: true,
+        username: true,
+        telegramId: true,
+        phoneNumber: true,
+        language: true,
+        role: true,
+      },
+    })
+    if (!user) return
+    const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'User'
+    const text =
+      `🆕 *Новый пользователь*\n\n` +
+      `👤 ${escapeMd(name)}\n` +
+      (user.username ? `🆔 @${escapeMd(user.username)}\n` : '') +
+      (user.phoneNumber ? `📞 ${escapeMd(user.phoneNumber)}\n` : '') +
+      `🌐 ${user.language} · ${user.role ?? 'роль не выбрана'}\n` +
+      `tg id: \`${user.telegramId}\``
+    await notifyAdmins(text)
+  } catch {
+    // Fire-and-forget (called via `void` in auth.ts) — never throw.
+  }
 }
 ```
 
