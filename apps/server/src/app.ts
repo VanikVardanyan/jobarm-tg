@@ -5,6 +5,7 @@ import errorHandler from './plugins/error-handler.js'
 import authRoutes from './routes/auth.js'
 import meRoutes from './routes/me.js'
 import carsRoutes from './routes/cars.js'
+import requestsRoutes from './routes/requests.js'
 
 export function buildApp() {
   const app = Fastify({ logger: true })
@@ -16,6 +17,7 @@ export function buildApp() {
   app.register(authRoutes, { prefix: '/api/auth' })
   app.register(meRoutes, { prefix: '/api' })
   app.register(carsRoutes, { prefix: '/api' })
+  app.register(requestsRoutes, { prefix: '/api' })
 
   app.get('/health', async () => ({ ok: true }))
 
