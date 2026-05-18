@@ -7,7 +7,7 @@ import { notifyAdminsNewUser } from '../bot/notifications.js'
 
 const bodySchema = z.object({
   initData: z.string().min(1),
-  language: z.enum(['hy', 'ru', 'en']).default('hy'),
+  language: z.enum(['ru', 'hy']).default('ru'),
 })
 
 export default async function authRoutes(app: FastifyInstance) {
@@ -27,7 +27,6 @@ export default async function authRoutes(app: FastifyInstance) {
     if (!telegramId) return reply.status(400).send({ error: 'No user in initData' })
 
     const existingUser = await db.user.findUnique({ where: { telegramId } })
-
     const adminFlag = config.ADMIN_TELEGRAM_IDS.includes(telegramId) ? { isAdmin: true } : {}
 
     const user = await db.user.upsert({
@@ -37,7 +36,8 @@ export default async function authRoutes(app: FastifyInstance) {
         telegramId,
         chatId: telegramId,
         username: tgUser.username ?? null,
-        name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'User',
+        firstName: tgUser.first_name ?? null,
+        lastName: tgUser.last_name ?? null,
         language,
         ...adminFlag,
       },
