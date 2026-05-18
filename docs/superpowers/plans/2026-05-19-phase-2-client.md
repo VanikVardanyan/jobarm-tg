@@ -1797,6 +1797,9 @@ If no fix was needed, skip (nothing to commit).
 - Mini App: React-Router shell + BottomNav; Garage CRUD; My Requests list + Detail (media badges only); Profile (phone/language); RU + HY.
 - One commit per task; `git status` clean; on `main`.
 
+**Known MVP caveats (Phase-6 polish — documented, not blocking; consistent with the project-wide "server Zod schema is the authoritative validator, client/bot inputs are lenient" decision):**
+- **CarsPage year field is free-text with no client-side numeric validation** (Task 11): a non-numeric/out-of-range year passes the non-empty disabled-gate, reaches the server, and `carInputSchema` rejects it with 400 → a generic error toast (no inline field feedback). Data integrity is fully protected server-side. Same lenient-input stance as the bot wizard's `Number.parseInt` year step (accepted in Task 7). Phase-6: add inline numeric validation/feedback.
+
 ## Self-Review
 
 **Spec coverage (design §15 row "2. Клиент" + §7 wizard + §8 API + §9 screens + §13 rate-limit):**
