@@ -923,6 +923,7 @@ git commit -m "feat(bot): service-registration conversation (wizard + moderation
 
 **Files:**
 - Modify: `apps/server/src/bot/bot.ts`
+- Modify: `apps/server/src/bot/notifications.ts` — forced integration consequence: once `bot` is `Bot<BotContext>`, the Phase-0 `initNotifications(bot: Bot)` / `_bot` field must be typed `Bot<BotContext>` (import `BotContext` from `./context.js`; no import cycle — `bot.ts` does not import `notifications.ts`, wiring is in `main.ts`). Type-only change, no runtime behaviour.
 
 - [ ] **Step 1: Replace `apps/server/src/bot/bot.ts` with EXACTLY**
 
