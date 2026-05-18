@@ -374,7 +374,7 @@ export function label(l: LocalizedLabel, lang: Language): string {
 export const SERVICE_TYPES: { key: ServiceType; label: LocalizedLabel }[] = [
   { key: 'BODY_PAINT', label: { ru: 'Кузов и покраска', hy: 'Թափք և ներկում' } },
   { key: 'ENGINE_CHASSIS', label: { ru: 'Двигатель и ходовая', hy: 'Շարժիչ և անվախել' } },
-  { key: 'MAINTENANCE', label: { ru: 'ТО и расходники', hy: 'ՏO և ծախսանյութեր' } },
+  { key: 'MAINTENANCE', label: { ru: 'ТО и расходники', hy: 'ՏՕ և ծախսանյութեր' } },
   { key: 'TIRES', label: { ru: 'Шиномонтаж', hy: 'Անվադողերի սպասարկում' } },
   { key: 'ELECTRICAL', label: { ru: 'Электрика', hy: 'Էլեկտրասարքավորում' } },
   { key: 'AC', label: { ru: 'Кондиционер', hy: 'Օդորակիչ' } },
@@ -457,8 +457,10 @@ Expected: tsc exits 0; `packages/shared/dist/index.js` and `index.d.ts` regenera
 
 - [ ] **Step 3: Commit**
 
+`packages/shared/dist/` is gitignored (root `.gitignore` ignores `dist`) — commit source only; `dist/` is a build artifact rebuilt on demand. Later verification tasks build the shared package before server/web typecheck.
+
 ```bash
-git add packages/shared/src/index.ts packages/shared/dist
+git add packages/shared/src/index.ts
 git commit -m "feat: replace shared types with Auto Service domain + reference data"
 ```
 
@@ -1175,10 +1177,11 @@ pnpm --filter server exec prisma migrate reset --force
 ```
 Expected: drops & recreates schema, applies the `init_auto_service` migration, runs the seed (`Seeded test users: ...`).
 
-- [ ] **Step 4: Typecheck server + build web**
+- [ ] **Step 4: Build shared, typecheck server, build web**
 
-Run: `pnpm --filter server exec tsc --noEmit && pnpm --filter web build`
-Expected: both succeed, no type errors, vite reports `✓ built in ...`.
+The shared package's `dist/` is gitignored, so build it first (server/web resolve `@jobbarm/shared` to `dist/`).
+Run: `pnpm --filter @jobbarm/shared build && pnpm --filter server exec tsc --noEmit && pnpm --filter web build`
+Expected: all succeed, no type errors, vite reports `✓ built in ...`.
 
 - [ ] **Step 5: Boot the server and hit /health**
 
