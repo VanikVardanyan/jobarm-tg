@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useStore } from '@/store'
+import { useT } from '@/lib/i18n'
 import { postTelegramAuth, getMe } from '@/lib/api'
 import { Toast } from '@/components/Toast'
-import { useT } from '@/lib/i18n'
+import RequestsPage from '@/pages/RequestsPage'
+import RequestDetailPage from '@/pages/RequestDetailPage'
+import CarsPage from '@/pages/CarsPage'
+import ProfilePage from '@/pages/ProfilePage'
 
 export default function App() {
   const { token, language, setToken } = useStore()
@@ -40,18 +45,20 @@ export default function App() {
   if (!token) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4 text-center">
+        <Toast />
         <p className="text-muted">{t.app.openInTelegram}</p>
       </div>
     )
   }
 
   return (
-    <>
-      <Toast />
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center gap-2">
-        <h1 className="text-2xl font-bold">{t.app.name}</h1>
-        <p className="text-muted">{t.app.placeholder}</p>
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/requests" replace />} />
+      <Route path="/requests" element={<RequestsPage />} />
+      <Route path="/requests/:id" element={<RequestDetailPage />} />
+      <Route path="/cars" element={<CarsPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="*" element={<Navigate to="/requests" replace />} />
+    </Routes>
   )
 }
