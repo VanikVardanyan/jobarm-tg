@@ -439,7 +439,9 @@ export function districtKeyboard(lang: Language): InlineKeyboard {
   const kb = new InlineKeyboard()
   DISTRICTS.forEach((d, i) => {
     kb.text(localizedLabel(d.label, lang), `dist:${d.key}`)
-    if (i % 2 === 1) kb.row()
+    // New row after every 2nd item, but never a trailing empty row (DISTRICTS
+    // has an even count — a final .row() would make Telegram reject the kb).
+    if (i % 2 === 1 && i < DISTRICTS.length - 1) kb.row()
   })
   return kb
 }
