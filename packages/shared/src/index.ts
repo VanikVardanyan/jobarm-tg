@@ -29,7 +29,7 @@ export interface LocalizedLabel {
   hy: string
 }
 
-export function label(l: LocalizedLabel, lang: Language): string {
+export function localizedLabel(l: LocalizedLabel, lang: Language): string {
   return l[lang] ?? l.ru
 }
 
