@@ -1197,6 +1197,7 @@ git commit -m "feat: reset web to Auto Service shell (auth + placeholder, RU/HY)
 
 **Files:**
 - Delete: `deploy/landing/`, `deploy/jobarm-brand/`, `apps/web/jobarm-brand/`, `apps/server/src/assets/`
+- Modify: `apps/server/Dockerfile`, `apps/server/Dockerfile.dev` — remove the now-dangling `COPY apps/server/src/assets …` lines (deleting the dir leaves these COPYs broken; `Dockerfile.dev` already copies all of `apps/server/`, the prod `Dockerfile` no longer needs `welcome.png` since the grammY bot doesn't use it)
 
 - [ ] **Step 1: Delete brand/landing/asset directories**
 
@@ -1211,11 +1212,17 @@ Expected: no output.
 Run: `grep -rn "assets/welcome" "apps/server/src" || echo "clean"`
 Expected: prints `clean` (the old telegraf bot.ts that referenced it was already replaced in Task 4).
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: Remove dangling `src/assets` COPY lines from the Dockerfiles**
+
+In `apps/server/Dockerfile`, delete the line `COPY apps/server/src/assets ./apps/server/dist/assets`.
+In `apps/server/Dockerfile.dev`, delete the line `COPY apps/server/src/assets/ ./apps/server/assets/`.
+Verify: `grep -rn "src/assets" apps/server/Dockerfile apps/server/Dockerfile.dev || echo "clean"` → prints `clean`.
+
+- [ ] **Step 4: Commit**
 
 ```bash
 git add -A deploy apps/web apps/server
-git commit -m "chore: remove JobArm brand, landing, and bot assets"
+git commit -m "chore: remove JobArm brand, landing, bot assets + dangling Dockerfile COPYs"
 ```
 
 ---

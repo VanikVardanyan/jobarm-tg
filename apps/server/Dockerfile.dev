@@ -12,7 +12,6 @@ RUN pnpm install --frozen-lockfile
 
 COPY packages/shared/ ./packages/shared/
 COPY apps/server/ ./apps/server/
-COPY apps/server/src/assets/ ./apps/server/assets/
 
 WORKDIR /workspace/apps/server
 
