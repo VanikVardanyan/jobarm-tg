@@ -1,6 +1,6 @@
 import { InlineKeyboard } from 'grammy'
 import type { Language } from '@jobbarm/shared'
-import { SERVICE_TYPES, DISTRICTS, localizedLabel } from '@jobbarm/shared'
+import { SERVICE_TYPES, DISTRICTS, URGENCIES, CAR_MAKES, localizedLabel } from '@jobbarm/shared'
 import { t } from './i18n.js'
 
 export function roleKeyboard(lang: Language): InlineKeyboard {
@@ -66,4 +66,59 @@ export function photosKeyboard(lang: Language): InlineKeyboard {
   return new InlineKeyboard()
     .text(t(lang, 'regPhotosSkip'), 'photos:skip')
     .text(t(lang, 'regPhotosDone'), 'photos:done')
+}
+
+// Single-select service type for a request (one tap → spec:<key>).
+export function serviceTypeKeyboard(lang: Language): InlineKeyboard {
+  const kb = new InlineKeyboard()
+  SERVICE_TYPES.forEach((s, i) => {
+    kb.text(localizedLabel(s.label, lang), `rqsvc:${s.key}`)
+    if (i % 2 === 1 && i < SERVICE_TYPES.length - 1) kb.row()
+  })
+  return kb
+}
+
+export function urgencyKeyboard(lang: Language): InlineKeyboard {
+  const kb = new InlineKeyboard()
+  URGENCIES.forEach((u, i) => {
+    kb.text(localizedLabel(u.label, lang), `rqurg:${u.key}`)
+    if (i < URGENCIES.length - 1) kb.row()
+  })
+  return kb
+}
+
+export function drivableKeyboard(lang: Language): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t(lang, 'reqDrivableYes'), 'rqdrv:1')
+    .text(t(lang, 'reqDrivableNo'), 'rqdrv:0')
+}
+
+export function confirmRequestKeyboard(lang: Language): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t(lang, 'reqConfirmYes'), 'rqok:1')
+    .text(t(lang, 'reqConfirmNo'), 'rqok:0')
+}
+
+// Garage picker: one button per car (rqcar:<id>) + an "add car" row.
+export function carsKeyboard(
+  lang: Language,
+  cars: { id: string; make: string; model: string; year: number }[]
+): InlineKeyboard {
+  const kb = new InlineKeyboard()
+  for (const c of cars) {
+    kb.text(`${c.make} ${c.model} ${c.year}`, `rqcar:${c.id}`).row()
+  }
+  kb.text(t(lang, 'reqAddCar'), 'rqcar:__add__')
+  return kb
+}
+
+// Car make picker (rqmk:<make>) + "Other" → free text (rqmk:__other__).
+export function carMakeKeyboard(lang: Language): InlineKeyboard {
+  const kb = new InlineKeyboard()
+  CAR_MAKES.forEach((m, i) => {
+    const isOther = m === 'Other'
+    kb.text(isOther ? localizedLabel({ ru: 'Другое', hy: 'Այլ' }, lang) : m, isOther ? 'rqmk:__other__' : `rqmk:${m}`)
+    if (i % 2 === 1 && i < CAR_MAKES.length - 1) kb.row()
+  })
+  return kb
 }
