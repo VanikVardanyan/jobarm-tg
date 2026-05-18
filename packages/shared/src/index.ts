@@ -134,9 +134,9 @@ export const carInputSchema = z.object({
   make: z.string().trim().min(1).max(40),
   model: z.string().trim().min(1).max(40),
   year: z.coerce.number().int().min(1950).max(CURRENT_YEAR + 1),
-  bodyType: z.string().trim().max(40).optional().nullable(),
-  color: z.string().trim().max(40).optional().nullable(),
-  licensePlate: z.string().trim().max(20).optional().nullable(),
+  bodyType: z.string().trim().min(1).max(40).optional().nullable(),
+  color: z.string().trim().min(1).max(40).optional().nullable(),
+  licensePlate: z.string().trim().min(1).max(20).optional().nullable(),
 })
 export type CarInput = z.infer<typeof carInputSchema>
 
