@@ -9,7 +9,7 @@ export function initNotifications(bot: Bot): void {
 }
 
 // Escape user-supplied text for Telegram legacy Markdown.
-function escapeMd(text: string): string {
+export function escapeMd(text: string): string {
   return text.replace(/[*_`[\]]/g, (ch) => `\\${ch}`)
 }
 
