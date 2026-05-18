@@ -22,3 +22,22 @@ export const putMe = (data: Partial<Pick<UserProfile, 'phoneNumber' | 'language'
 
 // Telegram-stored media is served via the backend file-proxy (added in Phase 4).
 export const fileUrl = (fileId: string) => `/api/files/${encodeURIComponent(fileId)}`
+
+import type { Car, CarInput, RequestSummary, RequestDetail } from '@jobbarm/shared'
+
+export const getCars = () => client.get<Car[]>('/cars').then((r) => r.data)
+
+export const createCar = (data: CarInput) =>
+  client.post<Car>('/cars', data).then((r) => r.data)
+
+export const updateCar = (id: string, data: CarInput) =>
+  client.put<Car>(`/cars/${id}`, data).then((r) => r.data)
+
+export const deleteCar = (id: string) =>
+  client.delete<void>(`/cars/${id}`).then((r) => r.data)
+
+export const getRequests = () =>
+  client.get<RequestSummary[]>('/requests').then((r) => r.data)
+
+export const getRequest = (id: string) =>
+  client.get<RequestDetail>(`/requests/${id}`).then((r) => r.data)
