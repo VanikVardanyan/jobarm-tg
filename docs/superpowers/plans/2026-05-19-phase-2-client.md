@@ -1799,6 +1799,7 @@ If no fix was needed, skip (nothing to commit).
 
 **Known MVP caveats (Phase-6 polish — documented, not blocking; consistent with the project-wide "server Zod schema is the authoritative validator, client/bot inputs are lenient" decision):**
 - **CarsPage year field is free-text with no client-side numeric validation** (Task 11): a non-numeric/out-of-range year passes the non-empty disabled-gate, reaches the server, and `carInputSchema` rejects it with 400 → a generic error toast (no inline field feedback). Data integrity is fully protected server-side. Same lenient-input stance as the bot wizard's `Number.parseInt` year step (accepted in Task 7). Phase-6: add inline numeric validation/feedback.
+- **ProfilePage cannot clear an already-set phone** (Task 13): empty phone is sent as `undefined` (omitted) so the server keeps the previous value — by design, since `PUT /api/me` Zod is `phoneNumber: z.string().min(5).optional()` and `''` would 400. Setting/correcting works; nulling-out does not. Phone-length <5 also yields a generic 400 toast (same accepted "server Zod authoritative, lenient client" stance). Phase-6: add an explicit clear affordance + inline phone validation.
 
 ## Self-Review
 
