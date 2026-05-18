@@ -1,52 +1,38 @@
-import { Telegraf, type Context } from 'telegraf'
+import { Bot } from 'grammy'
 import { config } from '../config.js'
 import { db } from '../db.js'
 
-export const bot: Telegraf<Context> = new Telegraf(config.BOT_TOKEN)
+export const bot = new Bot(config.BOT_TOKEN)
 
-bot.start(async (ctx) => {
-  if (!ctx.from) return
-
-  const telegramId = String(ctx.from.id)
-  const chatId = String(ctx.chat.id)
-
+bot.command('start', async (ctx) => {
+  const from = ctx.from
+  if (!from) return
+  const telegramId = String(from.id)
+  const chatId = String(ctx.chat?.id ?? from.id)
   try {
-    await db.user.update({
-      where: { telegramId },
-      data: { chatId },
-    })
+    await db.user.update({ where: { telegramId }, data: { chatId } })
   } catch {
-    // User not registered yet — they'll register via the Mini App
+    // Not registered yet — the Mini App auth flow will create the user.
   }
-
-  await ctx.reply('👇', {
+  await ctx.reply('🚗 Авто-сервис маркетплейс', {
     reply_markup: {
-      inline_keyboard: [[{ text: '🚀 Սկսել', web_app: { url: config.MINI_APP_URL } }]],
+      inline_keyboard: [[{ text: '🚀 Открыть', web_app: { url: config.MINI_APP_URL } }]],
     },
   })
 })
 
-bot.catch((err, ctx) => {
-  console.error(`Bot error for ${ctx.updateType} (user ${ctx.from?.id}):`, err)
+bot.catch((err) => {
+  console.error('Bot error:', err)
 })
 
-export async function configureBotMenu() {
-  await bot.telegram.setChatMenuButton({
-    menuButton: {
-      type: 'web_app',
-      text: 'Բացել հավելվածը',
-      web_app: { url: config.MINI_APP_URL },
-    },
+export async function configureBotMenu(): Promise<void> {
+  await bot.api.setChatMenuButton({
+    menu_button: { type: 'web_app', text: 'Открыть', web_app: { url: config.MINI_APP_URL } },
   })
-
-  await bot.telegram.setMyDescription(
-    '🚀 JobArm — վարպետներ և պատվիրատուներ մեկ հարթակում։\n\n' +
-      '📲 Տեղադրեք առաջադրանքներ կամ գտեք աշխատանք՝ առանց ավելորդ քայլերի։\n' +
-      '⭐ Վարկանիշներ, կարծիքներ և ստուգված վարպետներ։\n' +
-      '🔒 Ամեն ինչ՝ Telegram-ի ներսում։'
+  await bot.api.setMyDescription(
+    '🚗 Авто-сервис маркетплейс — найдите автосервис в Армении.\n\n' +
+      '📲 Опишите проблему — получите предложения с ценой.\n' +
+      '⭐ Рейтинги и отзывы. Всё внутри Telegram.'
   )
-
-  await bot.telegram.setMyShortDescription(
-    'Աշխատանք և վարպետներ Հայաստանում'
-  )
+  await bot.api.setMyShortDescription('Автосервисы Армении')
 }
