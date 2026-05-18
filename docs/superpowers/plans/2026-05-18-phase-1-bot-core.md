@@ -307,7 +307,7 @@ const ru: Dict = {
   regPhotosMore: 'Фото добавлено ({n}/5). Ещё или «Готово».',
   regDone: '✅ Заявка на регистрацию отправлена. Сервис на модерации — мы уведомим вас.',
   regAbortNoText: 'Ожидался текст. Регистрация отменена, начните заново через меню.',
-  adminNewService: '🆕 *Новый сервис на модерации*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}',
+  adminNewService: '🆕 *Новый сервис на модерации*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}\n📝 {description}',
 }
 
 const hy: Dict = {
@@ -349,7 +349,7 @@ const hy: Dict = {
   regPhotosMore: 'Լուսանկարն ավելացվեց ({n}/5)։ Ավելին կամ «Պատրաստ է»։',
   regDone: '✅ Գրանցման հայտն ուղարկվեց։ Սերվիսը մոդերացիայի մեջ է — կտեղեկացնենք։',
   regAbortNoText: 'Սպասվում էր տեքստ։ Գրանցումը չեղարկվեց, սկսեք նորից մենյուից։',
-  adminNewService: '🆕 *Նոր սերվիս մոդերացիայի*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}',
+  adminNewService: '🆕 *Նոր սերվիս մոդերացիայի*\n\n🏢 {name}\n📍 {district}, {address}\n📞 {phone}\n🔧 {specs}\n📝 {description}',
 }
 
 const dicts: Record<Language, Dict> = { ru, hy }
@@ -773,16 +773,28 @@ export async function registerService(
     return
   }
 
-  const askText = async (key: string): Promise<string> => {
+  // Returns trimmed text, or null if the user sent a non-text message —
+  // in which case the wizard is aborted (regAbortNoText) and the caller
+  // must return. waitFor('message:text') would silently drop non-text
+  // updates, leaving the user staring at a frozen wizard.
+  const askText = async (key: string): Promise<string | null> => {
     await ctx.reply(t(lang, key))
-    const res = await conversation.waitFor('message:text')
-    return res.message.text.trim()
+    const res = await conversation.wait()
+    const text = res.message?.text
+    if (!text) {
+      await ctx.reply(t(lang, 'regAbortNoText'))
+      return null
+    }
+    return text.trim()
   }
 
   const name = await askText('regName')
+  if (name === null) return
   const descRaw = await askText('regDescription')
+  if (descRaw === null) return
   const description = descRaw === '-' ? null : descRaw
   const address = await askText('regAddress')
+  if (address === null) return
 
   // District (inline buttons)
   await ctx.reply(t(lang, 'regDistrict'), { reply_markup: districtKeyboard(lang) })
@@ -791,6 +803,7 @@ export async function registerService(
   const district = distCb.match![1]
 
   const phoneNumber = await askText('regPhone')
+  if (phoneNumber === null) return
 
   // Specializations (multi-select toggle)
   const selected = new Set<string>()
@@ -827,7 +840,12 @@ export async function registerService(
     const photo = upd.message?.photo
     if (photo && photo.length > 0) {
       photos.push(photo[photo.length - 1].file_id)
-      if (photos.length >= 5) break
+      if (photos.length >= 5) {
+        // Acknowledge the final photo so the user isn't left with no
+        // feedback during the (possibly slow) persist + notify below.
+        await ctx.reply(t(lang, 'regPhotosMore', { n: photos.length }))
+        break
+      }
       await ctx.reply(t(lang, 'regPhotosMore', { n: photos.length }), {
         reply_markup: photosKeyboard(lang),
       })
@@ -878,6 +896,7 @@ export async function registerService(
         address: escapeMd(address),
         phone: escapeMd(phoneNumber),
         specs: specsText,
+        description: description ? escapeMd(description) : '—',
       })
     )
   })
