@@ -103,8 +103,15 @@ MAINTENANCE, TIRES, ELECTRICAL, AC, GLASS, INTERIOR, OTHER}`, `Urgency {URGENT,
 THIS_WEEK, NORMAL}`, `RequestStatus {OPEN, IN_PROGRESS, COMPLETED, CANCELLED,
 EXPIRED}`.
 
-Дополнение к спеке: `User.isBanned` для админ-блокировки (спека требует
-«блокировать пользователей и сервисы», но поля в схеме не было).
+Дополнения к спеке (по результатам код-ревью схемы):
+- `User.isBanned` для админ-блокировки (спека требует «блокировать
+  пользователей и сервисы», но поля в схеме не было).
+- `Review` имеет `@@unique([requestId, authorId])` — один отзыв на заявку от
+  автора, чтобы дубли не накручивали рейтинг сервиса.
+- `Request` имеет `@@index([carId])`; `Review` — `@@index([authorId])`.
+- `updatedAt @updatedAt` на `ServiceProfile`/`Car`/`Request`/`Offer`/`Review`.
+- `Review.rating` 1–5 валидируется в **Zod на роутах фич-фаз** (у Prisma нет
+  нативного CHECK) — не на уровне БД, по дизайну.
 
 ## 6. Медиа: Telegram file_id + file-proxy
 

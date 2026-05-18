@@ -14,6 +14,7 @@
 - Reference data (districts, service types, urgency, car makes) lives as **static constants in `packages/shared`**, not DB tables — Mini App imports them directly (workspace), no reference API endpoints.
 - The shared package keeps its existing name `@jobbarm/shared` — renaming would ripple through both `package.json` files and every import for zero functional gain.
 - No automated tests (per `SPEC_AUTO.md` instruction #7). Verification is typecheck/build/migrate/boot.
+- **Schema hardened after Task 2 code review** (single baseline migration regenerated, not stacked): added `@@index([carId])` on `Request` (avoids full scan on `Restrict` car delete), `@@unique([requestId, authorId])` + `@@index([authorId])` on `Review` (prevents duplicate reviews inflating ratings; supports "my reviews"), and `updatedAt @updatedAt` on `ServiceProfile`/`Car`/`Request`/`Offer`/`Review` (free, avoids a later migration). `Review.rating` 1–5 is validated in **Zod at feature-phase routes** (Prisma has no native CHECK) — not a DB constraint by design.
 
 **Reference:** `docs/superpowers/specs/2026-05-18-auto-service-marketplace-design.md`, `SPEC_AUTO.md`.
 
@@ -200,6 +201,7 @@ model ServiceProfile {
   isActive        Boolean  @default(true) @map("is_active")
   photos          String[]
   createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@index([district, isVerified, isActive])
   @@map("service_profiles")
@@ -216,6 +218,7 @@ model Car {
   color        String?
   licensePlate String?   @map("license_plate")
   createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   requests     Request[]
 
@@ -242,6 +245,7 @@ model Request {
   reminderSentAt  DateTime?     @map("reminder_sent_at")
   selectedAt      DateTime?     @map("selected_at")
   createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
   expiresAt       DateTime      @map("expires_at")
 
   offers          Offer[]       @relation("RequestOffers")
@@ -249,6 +253,7 @@ model Request {
 
   @@index([district, status])
   @@index([clientId])
+  @@index([carId])
   @@map("requests")
 }
 
@@ -264,6 +269,7 @@ model Offer {
   duration      String?
   examplePhotos String[] @map("example_photos")
   createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   selectedFor   Request? @relation("SelectedOffer")
 
@@ -284,8 +290,11 @@ model Review {
   text      String?
   photos    String[]
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([requestId, authorId])
   @@index([serviceId])
+  @@index([authorId])
   @@map("reviews")
 }
 ```
