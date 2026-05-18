@@ -607,13 +607,15 @@ startHandler.callbackQuery(/^role:(CLIENT|SERVICE)$/, async (ctx) => {
     await ctx.answerCallbackQuery()
     return
   }
+  // Ack the tap before the DB write — a transient DB error must not leave
+  // the inline button spinning (ack is not a gate on the write result).
+  await ctx.answerCallbackQuery()
   const role = ctx.match![1] as 'CLIENT' | 'SERVICE'
   const updated = await db.user.update({
     where: { id: ctx.dbUser.id },
     data: { role },
   })
   ctx.dbUser = updated
-  await ctx.answerCallbackQuery()
   const lang = (updated.language as Language) ?? 'ru'
   if (role === 'CLIENT') {
     await ctx.reply(t(lang, 'roleSetClient'))
@@ -677,13 +679,15 @@ miscHandler.command('cancel', async (ctx) => {
 })
 
 miscHandler.callbackQuery(/^lang:(ru|hy)$/, async (ctx) => {
+  // Ack the tap before the DB write — a transient DB error must not leave
+  // the inline button spinning (ack is not a gate on the write result).
+  await ctx.answerCallbackQuery()
   const next = ctx.match![1] as Language
   const updated = await db.user.update({
     where: { id: ctx.dbUser.id },
     data: { language: next },
   })
   ctx.dbUser = updated
-  await ctx.answerCallbackQuery()
   await ctx.reply(t(next, 'languageSet'))
   await showMenu(ctx)
 })
